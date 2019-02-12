@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="dubbo-config-api" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="dubbo-config-api" options="-proc:none" />
+      <module name="dubbo-demo-provider" options="-proc:none" />
+      <module name="mydubbo" options="-proc:none" />
+      <module name="mydubbo-cluster" options="-proc:none" />
+      <module name="mydubbo-common" options="-proc:none" />
+      <module name="mydubbo-config" options="-proc:none" />
+      <module name="mydubbo-config-api" options="-proc:none" />
+      <module name="mydubbo-config-spring" options="-proc:none" />
+      <module name="mydubbo-container" options="-proc:none" />
+      <module name="mydubbo-demo" options="-proc:none" />
+      <module name="mydubbo-demo-api" options="-proc:none" />
+      <module name="mydubbo-demo-consumer" options="-proc:none" />
+      <module name="mydubbo-demo-provider" options="-proc:none" />
+      <module name="mydubbo-dependencies-bom" options="" />
+      <module name="mydubbo-registry" options="-proc:none" />
+      <module name="mydubbo-remoting" options="-proc:none" />
+      <module name="mydubbo-rpc" options="-proc:none" />
+      <module name="mydubbo-rpc-api" options="-proc:none" />
+    </option>
+  </component>
+</project>

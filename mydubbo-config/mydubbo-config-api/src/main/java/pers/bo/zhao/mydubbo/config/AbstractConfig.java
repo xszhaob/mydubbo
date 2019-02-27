@@ -3,6 +3,7 @@ package pers.bo.zhao.mydubbo.config;
 import pers.bo.zhao.mydubbo.common.logger.Logger;
 import pers.bo.zhao.mydubbo.common.logger.LoggerFactory;
 import pers.bo.zhao.mydubbo.common.utils.StringUtils;
+import pers.bo.zhao.mydubbo.config.support.Parameter;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -62,14 +63,56 @@ public abstract class AbstractConfig implements Serializable {
 
         Method[] methods = config.getClass().getMethods();
         for (Method method : methods) {
-            String name = method.getName();
+            try {
+                String name = method.getName();
 
-            // 判断是否为public修饰的set方法，且仅有一个参数，参数类型为基本类型
-            if (name.length() > 3 && name.startsWith("set")
-                    && method.getParameterTypes().length == 1
-                    && isPrimitive(method.getParameterTypes()[0])) {
-                String property = StringUtils.camelToSplitName(
-                        name.substring(3, 4) + name.substring(4), ".");
+                // 判断是否为public修饰的set方法，且仅有一个参数，参数类型为基本类型
+                if (name.length() > 3 && name.startsWith("set")
+                        && method.getParameterTypes().length == 1
+                        && isPrimitive(method.getParameterTypes()[0])) {
+                    String property = StringUtils.camelToSplitName(
+                            name.substring(3, 4) + name.substring(4), ".");
+
+                    String value = null;
+                    if (StringUtils.isNotEmpty(config.getId())) {
+                        String pn = prefix + config.getId() + "." + property;
+                        value = System.getProperty(pn);
+                        if (StringUtils.isNotEmpty(value)) {
+                            LOGGER.info("Use System Property " + pn + " to config dubbo");
+                        }
+                    }
+
+                    if (StringUtils.isEmpty(value)) {
+                        String pn = prefix + property;
+                        value = System.getProperty(pn);
+                        if (StringUtils.isNotEmpty(value)) {
+                            LOGGER.info("Use System Property " + pn + " to config dubbo");
+                        }
+                    }
+
+                    if (StringUtils.isEmpty(value)) {
+                        Method getter;
+                        try {
+                            getter = config.getClass().getMethod("get" + name.substring(3));
+                        } catch (NoSuchMethodException e1) {
+                            try {
+                                getter = config.getClass().getMethod("is" + name.substring(3));
+                            } catch (NoSuchMethodException e2) {
+                                getter = null;
+                            }
+                        }
+
+                        if (getter != null) {
+                            if (getter.invoke(config) == null) {
+                                if (config.getId() != null)
+                            }
+
+                        }
+
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -101,4 +144,12 @@ public abstract class AbstractConfig implements Serializable {
     }
 
 
+    @Parameter(excluded = true)
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

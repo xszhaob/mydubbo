@@ -1,12 +1,18 @@
 package pers.bo.zhao.mydubbo.config;
 
+import pers.bo.zhao.mydubbo.common.Constants;
+import pers.bo.zhao.mydubbo.common.URL;
 import pers.bo.zhao.mydubbo.common.logger.Logger;
 import pers.bo.zhao.mydubbo.common.logger.LoggerFactory;
+import pers.bo.zhao.mydubbo.common.utils.CollectionUtils;
+import pers.bo.zhao.mydubbo.common.utils.ConfigUtils;
+import pers.bo.zhao.mydubbo.common.utils.MethodUtils;
 import pers.bo.zhao.mydubbo.common.utils.StringUtils;
 import pers.bo.zhao.mydubbo.config.support.Parameter;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -54,7 +60,21 @@ public abstract class AbstractConfig implements Serializable {
     protected String id;
 
 
-    protected void appendProperties(AbstractConfig config) {
+    private static String convertLegacyValue(String key, String value) {
+        if (value != null && value.length() > 0) {
+            if ("dubbo.service.max.retry.providers".equals(key)) {
+                return String.valueOf(Integer.parseInt(value) - 1);
+            } else if ("dubbo.service.allow.no.provider".equals(key)) {
+                return String.valueOf(!Boolean.parseBoolean(value));
+            }
+        }
+        return value;
+    }
+
+    /**
+     * 把properties中配置的值加入到config中
+     */
+    protected static void appendProperties(AbstractConfig config) {
         if (config == null) {
             return;
         }
@@ -104,15 +124,106 @@ public abstract class AbstractConfig implements Serializable {
 
                         if (getter != null) {
                             if (getter.invoke(config) == null) {
-                                if (config.getId() != null)
+                                if (StringUtils.isNotEmpty(config.getId())) {
+                                    value = ConfigUtils.getProperty(prefix + config.getId() + "." + property);
+                                }
+                                if (StringUtils.isEmpty(value)) {
+                                    value = ConfigUtils.getProperty(prefix + property);
+                                }
+                                if (StringUtils.isEmpty(value)) {
+                                    String legacyKey = LEGACY_PROPERTIES.get(prefix + property);
+                                    if (StringUtils.isNotEmpty(legacyKey)) {
+                                        value = convertLegacyValue(legacyKey, ConfigUtils.getProperty(legacyKey));
+                                    }
+                                }
                             }
-
                         }
-
+                    }
+                    if (StringUtils.isNotEmpty(value)) {
+                        method.invoke(config, convertPrimitive(method.getParameterTypes()[0], value));
                     }
                 }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
+            }
+        }
+    }
+
+
+    public static void appendParameters(Map<String, String> parameters, Object config) {
+        appendParameters(parameters, config, null);
+    }
+
+    /**
+     * 把config中的值加入到parameters的map中
+     */
+    @SuppressWarnings("unchecked")
+    public static void appendParameters(Map<String, String> parameters, Object config, String prefix) {
+        if (config == null) {
+            return;
+        }
+
+        Method[] methods = config.getClass().getMethods();
+        for (Method method : methods) {
+            try {
+                String name = method.getName();
+                if (MethodUtils.isGetMethod(name)
+                        && !"getClass".equals(name)
+                        && Modifier.isPublic(method.getModifiers())
+                        // 没有入参
+                        && method.getParameterTypes().length == 0
+                        // 返回数据是基本类型（包括包装类）
+                        && isPrimitive(method.getReturnType())) {
+                    Parameter parameter = method.getAnnotation(Parameter.class);
+                    if (method.getReturnType() == Object.class || (parameter != null && parameter.excluded())) {
+                        continue;
+                    }
+                    int i = name.startsWith("get") ? 3 : 2;
+                    String property = StringUtils.camelToSplitName(
+                            name.substring(i, i + 1).toLowerCase() + name.substring(i + 1), ".");
+                    String key;
+                    if (parameter != null && parameter.key().length() > 0) {
+                        key = parameter.key();
+                    } else {
+                        key = property;
+                    }
+                    Object value = method.invoke(config);
+                    String str = String.valueOf(value);
+                    if (value != null && str.length() > 0) {
+                        if (parameter != null && parameter.escaped()) {
+                            str = URL.encode(str);
+                        }
+                        if (parameter != null && parameter.append()) {
+                            String pre = parameters.get(Constants.DEFAULT_KEY + "." + key);
+                            if (StringUtils.isNotEmpty(pre)) {
+                                str = pre + "," + str;
+                            }
+                            pre = parameters.get(key);
+                            if (StringUtils.isNotEmpty(pre)) {
+                                str = pre + "," + str;
+                            }
+                        }
+                        if (StringUtils.isNotEmpty(prefix)) {
+                            key = prefix + "." + key;
+                        }
+                        parameters.put(key, str);
+                    } else if (parameter != null && parameter.required()) {
+                        throw new IllegalStateException(config.getClass().getSimpleName() + "." + key + " == null");
+                    }
+                } else if ("getParameters".equals(name)
+                        && Modifier.isPublic(method.getModifiers())
+                        && method.getParameterTypes().length == 0
+                        && method.getReturnType() == Map.class) {
+                    Map<String, String> map = (Map<String, String>) method.invoke(config);
+                    if (CollectionUtils.isNotEmpty(map)) {
+                        String pre = StringUtils.isNotEmpty(prefix) ? prefix + "." : "";
+                        for (Map.Entry<String, String> entry : map.entrySet()) {
+                            parameters.put(pre + entry.getKey().replace("-", "."), entry.getValue());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException(e.getMessage(), e);
             }
         }
     }
@@ -129,6 +240,27 @@ public abstract class AbstractConfig implements Serializable {
                 || clazz == Float.class
                 || clazz == Double.class
                 || clazz == String.class;
+    }
+
+    private static Object convertPrimitive(Class<?> type, String value) {
+        if (type == char.class || type == Character.class) {
+            return value.length() > 0 ? value.charAt(0) : "\0";
+        } else if (type == boolean.class || type == Boolean.class) {
+            return Boolean.valueOf(value);
+        } else if (type == byte.class || type == Byte.class) {
+            return Byte.valueOf(value);
+        } else if (type == short.class || type == Short.class) {
+            return Short.valueOf(value);
+        } else if (type == int.class || type == Integer.class) {
+            return Integer.valueOf(value);
+        } else if (type == long.class || type == Long.class) {
+            return Long.valueOf(value);
+        } else if (type == float.class || type == Float.class) {
+            return Float.valueOf(value);
+        } else if (type == double.class || type == Double.class) {
+            return Double.valueOf(value);
+        }
+        return value;
     }
 
     private static String getTagName(Class<? extends AbstractConfig> configClass) {

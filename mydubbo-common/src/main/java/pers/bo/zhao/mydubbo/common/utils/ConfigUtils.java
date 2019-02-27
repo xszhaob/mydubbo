@@ -1,5 +1,6 @@
 package pers.bo.zhao.mydubbo.common.utils;
 
+
 import pers.bo.zhao.mydubbo.common.Constants;
 
 import java.util.Properties;

@@ -7,4 +7,6 @@ package pers.bo.zhao.mydubbo.common;
 public class Constants {
 
     public static final String DUBBO_PROPERTIS_KEY = "dubbo.properties.file";
+
+    public static final String DEFAULT_KEY = "default";
 }

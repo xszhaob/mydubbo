@@ -6,7 +6,7 @@ import pers.bo.zhao.mydubbo.common.logger.Logger;
 import pers.bo.zhao.mydubbo.common.logger.LoggerFactory;
 import pers.bo.zhao.mydubbo.common.utils.CollectionUtils;
 import pers.bo.zhao.mydubbo.common.utils.ConfigUtils;
-import pers.bo.zhao.mydubbo.common.utils.MethodUtils;
+import pers.bo.zhao.mydubbo.common.utils.ReflectUtils;
 import pers.bo.zhao.mydubbo.common.utils.StringUtils;
 import pers.bo.zhao.mydubbo.config.support.Parameter;
 
@@ -167,7 +167,7 @@ public abstract class AbstractConfig implements Serializable {
         for (Method method : methods) {
             try {
                 String name = method.getName();
-                if (MethodUtils.isGetMethod(name)
+                if (ReflectUtils.isGetMethod(name)
                         && !"getClass".equals(name)
                         && Modifier.isPublic(method.getModifiers())
                         // 没有入参
@@ -178,14 +178,13 @@ public abstract class AbstractConfig implements Serializable {
                     if (method.getReturnType() == Object.class || (parameter != null && parameter.excluded())) {
                         continue;
                     }
-                    int i = name.startsWith("get") ? 3 : 2;
-                    String property = StringUtils.camelToSplitName(
-                            name.substring(i, i + 1).toLowerCase() + name.substring(i + 1), ".");
                     String key;
                     if (parameter != null && parameter.key().length() > 0) {
                         key = parameter.key();
                     } else {
-                        key = property;
+                        int i = name.startsWith("get") ? 3 : 2;
+                        key = StringUtils.camelToSplitName(
+                                name.substring(i, i + 1).toLowerCase() + name.substring(i + 1), ".");
                     }
                     Object value = method.invoke(config);
                     String str = String.valueOf(value);
@@ -220,6 +219,51 @@ public abstract class AbstractConfig implements Serializable {
                         for (Map.Entry<String, String> entry : map.entrySet()) {
                             parameters.put(pre + entry.getKey().replace("-", "."), entry.getValue());
                         }
+                    }
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
+        }
+    }
+
+    protected static void appendAttributes(Map<Object, Object> parameters, Object config) {
+        appendAttributes(parameters, config, null);
+    }
+
+    protected static void appendAttributes(Map<Object, Object> parameters, Object config, String prefix) {
+        if (config == null) {
+            return;
+        }
+
+        Method[] methods = config.getClass().getMethods();
+        for (Method method : methods) {
+            try {
+                String name = method.getName();
+                if (ReflectUtils.isGetMethod(name)
+                        && !"getClass".equals(name)
+                        && Modifier.isPublic(method.getModifiers())
+                        && method.getParameterTypes().length == 0
+                        && isPrimitive(method.getReturnType())) {
+                    Parameter parameter = method.getAnnotation(Parameter.class);
+                    if (parameter == null || !parameter.attribute()) {
+                        continue;
+                    }
+                    String key;
+                    if (parameter.key().length() > 0) {
+                        key = parameter.key();
+                    } else {
+                        int i = name.startsWith("get") ? 3 : 2;
+                        key = StringUtils.camelToSplitName(
+                                name.substring(i, i + 1).toLowerCase() + name.substring(i + 1), ".");
+                    }
+
+                    Object value = method.invoke(config);
+                    if (value != null) {
+                        if (StringUtils.isNotEmpty(prefix)) {
+                            key = prefix + "." + key;
+                        }
+                        parameters.put(key, value);
                     }
                 }
             } catch (Exception e) {
@@ -283,5 +327,83 @@ public abstract class AbstractConfig implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+
+    protected void appendAnnotation(Class<?> annotationClass, Object annotation) {
+        Method[] methods = annotationClass.getMethods();
+
+        for (Method method : methods) {
+            try {
+                if (method.getDeclaringClass() != Object.class
+                        && method.getReturnType() != void.class
+                        && method.getParameterTypes().length == 0
+                        && Modifier.isPublic(method.getModifiers())
+                        && !Modifier.isStatic(method.getModifiers())) {
+                    String property = method.getName();
+                    if ("interfaceClass".equals(property) || "interfaceName".equals(property)) {
+                        property = "interface";
+                    }
+                    String setter = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
+                    Object value = method.invoke(annotation);
+                    if (value != null && !value.equals(method.getDefaultValue())) {
+                        Class<?> parameterType = ReflectUtils.getBoxedClass(method.getReturnType());
+                        if ("filter".equals(property) || "listener".equals(property)) {
+                            parameterType = String.class;
+                            value = String.join(",", (String[]) value);
+                        } else if ("parameters".equals(property)) {
+                            parameterType = Map.class;
+                            value = CollectionUtils.toStringMap((String[]) value);
+                        }
+                        try {
+                            Method invokeMethod = getClass().getMethod(setter, parameterType);
+                            invokeMethod.invoke(this, value);
+                        } catch (NoSuchMethodException ignore) {
+                        }
+                    }
+                }
+            } catch (Throwable t) {
+                LOGGER.error(t.getMessage(), t);
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<mydubbo:");
+            sb.append(getTagName(getClass()));
+            Method[] methods = getClass().getMethods();
+            for (Method method : methods) {
+                try {
+                    String name = method.getName();
+                    if (ReflectUtils.isGetMethod(name)
+                            && !"get".equals(name) && !"is".equals(name)
+                            && Modifier.isPublic(method.getModifiers())
+                            && !Modifier.isStatic(method.getModifiers())
+                            && method.getParameterTypes().length == 0
+                            && isPrimitive(method.getReturnType())) {
+                        int i = name.startsWith("get") ? 3 : 2;
+                        String key = name.substring(i, i + 1).toLowerCase() + name.substring(i + 1);
+                        Object value = method.invoke(this);
+                        if (value != null) {
+                            sb.append(" ");
+                            sb.append(key);
+                            sb.append("=\"");
+                            sb.append(value);
+                            sb.append("\"");
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            }
+            sb.append(" />");
+            return sb.toString();
+        } catch (Throwable t) {
+            LOGGER.warn(t.getMessage(), t);
+            return super.toString();
+        }
     }
 }

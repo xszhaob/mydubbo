@@ -1,11 +1,19 @@
 package pers.bo.zhao.mydubbo.config;
 
 import junit.framework.TestCase;
+import org.hamcrest.Matchers;
 import org.junit.Test;
+import pers.bo.zhao.mydubbo.config.api.Greeting;
 import pers.bo.zhao.mydubbo.config.support.Parameter;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertThat;
 
 public class AbstractConfigTest {
 
@@ -61,6 +69,31 @@ public class AbstractConfigTest {
         TestCase.assertFalse(parameters.containsKey("prefix.secret"));
     }
 
+    @Test
+    public void testAppendAttributes1() throws Exception {
+        Map<Object, Object> parameters = new HashMap<Object, Object>();
+        AbstractConfig.appendAttributes(parameters, new AttributeConfig('l', true, (byte) 0x01), "prefix");
+        TestCase.assertEquals('l', parameters.get("prefix.let"));
+        TestCase.assertEquals(true, parameters.get("prefix.activate"));
+        TestCase.assertFalse(parameters.containsKey("prefix.flag"));
+    }
+
+    @Test
+    @Config(interfaceClass = Greeting.class, filter = {"f1, f2"}, listener = {"l1, l2"},
+            parameters = {"k1", "v1", "k2", "v2"})
+    public void appendAnnotation() throws Exception {
+        Config config = getClass().getMethod("appendAnnotation").getAnnotation(Config.class);
+        AnnotationConfig annotationConfig = new AnnotationConfig();
+        annotationConfig.appendAnnotation(Config.class, config);
+        TestCase.assertSame(Greeting.class, annotationConfig.getInterface());
+        TestCase.assertEquals("f1, f2", annotationConfig.getFilter());
+        TestCase.assertEquals("l1, l2", annotationConfig.getListener());
+        TestCase.assertEquals(2, annotationConfig.getParameters().size());
+        TestCase.assertEquals("v1", annotationConfig.getParameters().get("k1"));
+        TestCase.assertEquals("v2", annotationConfig.getParameters().get("k2"));
+        assertThat(annotationConfig.toString(), Matchers.containsString("filter=\"f1, f2\" "));
+        assertThat(annotationConfig.toString(), Matchers.containsString("listener=\"l1, l2\" "));
+    }
 
     private static class PropertiesConfig extends AbstractConfig {
         private char c;
@@ -210,6 +243,97 @@ public class AbstractConfigTest {
             map.put("key.1", "one");
             map.put("key-2", "two");
             return map;
+        }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+    public @interface Config {
+        Class<?> interfaceClass() default void.class;
+
+        String interfaceName() default "";
+
+        String[] filter() default {};
+
+        String[] listener() default {};
+
+        String[] parameters() default {};
+    }
+
+    private static class AttributeConfig {
+        private char letter;
+        private boolean activate;
+        private byte flag;
+
+        public AttributeConfig(char letter, boolean activate, byte flag) {
+            this.letter = letter;
+            this.activate = activate;
+            this.flag = flag;
+        }
+
+        @Parameter(attribute = true, key = "let")
+        public char getLetter() {
+            return letter;
+        }
+
+        public void setLetter(char letter) {
+            this.letter = letter;
+        }
+
+        @Parameter(attribute = true)
+        public boolean isActivate() {
+            return activate;
+        }
+
+        public void setActivate(boolean activate) {
+            this.activate = activate;
+        }
+
+        public byte getFlag() {
+            return flag;
+        }
+
+        public void setFlag(byte flag) {
+            this.flag = flag;
+        }
+    }
+
+    private static class AnnotationConfig extends AbstractConfig {
+        private Class interfaceClass;
+        private String filter;
+        private String listener;
+        private Map<String, String> parameters;
+
+        public Class getInterface() {
+            return interfaceClass;
+        }
+
+        public void setInterface(Class interfaceName) {
+            this.interfaceClass = interfaceName;
+        }
+
+        public String getFilter() {
+            return filter;
+        }
+
+        public void setFilter(String filter) {
+            this.filter = filter;
+        }
+
+        public String getListener() {
+            return listener;
+        }
+
+        public void setListener(String listener) {
+            this.listener = listener;
+        }
+
+        public Map<String, String> getParameters() {
+            return parameters;
+        }
+
+        public void setParameters(Map<String, String> parameters) {
+            this.parameters = parameters;
         }
     }
 }

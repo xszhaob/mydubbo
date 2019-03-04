@@ -10,12 +10,15 @@
       <module name="dubbo-config-api" options="-proc:none" />
       <module name="dubbo-demo-provider" options="-proc:none" />
       <module name="mydubbo" options="-proc:none" />
+      <module name="mydubbo-bootstrap" options="-proc:none" />
       <module name="mydubbo-cluster" options="-proc:none" />
       <module name="mydubbo-common" options="-proc:none" />
       <module name="mydubbo-config" options="-proc:none" />
       <module name="mydubbo-config-api" options="-proc:none" />
       <module name="mydubbo-config-spring" options="-proc:none" />
       <module name="mydubbo-container" options="-proc:none" />
+      <module name="mydubbo-container-api" options="-proc:none" />
+      <module name="mydubbo-container-spring" options="-proc:none" />
       <module name="mydubbo-demo" options="-proc:none" />
       <module name="mydubbo-demo-api" options="-proc:none" />
       <module name="mydubbo-demo-consumer" options="-proc:none" />

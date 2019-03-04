@@ -3,36 +3,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>mydubbo-config</artifactId>
+        <artifactId>mydubbo-container</artifactId>
         <groupId>pers.bo.zhao</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mydubbo-config-spring</artifactId>
+    <artifactId>mydubbo-container-spring</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>pers.bo.zhao</groupId>
-            <artifactId>mydubbo-config-api</artifactId>
+            <artifactId>mydubbo-container-api</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>pers.bo.zhao</groupId>
-            <artifactId>mydubbo-bootstrap</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-config-spring</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
+
 </project>

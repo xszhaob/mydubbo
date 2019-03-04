@@ -18,6 +18,7 @@
         <module>mydubbo-container</module>
         <module>mydubbo-demo</module>
         <module>mydubbo-dependencies-bom</module>
+        <module>mydubbo-bootstrap</module>
     </modules>
 
 

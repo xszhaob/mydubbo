@@ -9,12 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mydubbo-container</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>mydubbo-container-api</module>
-        <module>mydubbo-container-spring</module>
-    </modules>
+    <artifactId>mydubbo-bootstrap</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-config-api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -472,6 +472,14 @@ public class ExtensionLoader<T> {
         return Collections.unmodifiableSet(new TreeSet<>(map.keySet()));
     }
 
+    /**
+     * Return default extension name, return <code>null</code> if not configured.
+     */
+    public String getDefaultExtensionName() {
+        getExtensionClasses();
+        return cachedDefaultName;
+    }
+
     private Map<String, Class<?>> loadExtensionClasses() {
         SPI spiAnnotation = type.getAnnotation(SPI.class);
         if (spiAnnotation != null) {

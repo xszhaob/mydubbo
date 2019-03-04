@@ -2,6 +2,7 @@ package pers.bo.zhao.mydubbo.config;
 
 import pers.bo.zhao.mydubbo.common.Constants;
 import pers.bo.zhao.mydubbo.common.URL;
+import pers.bo.zhao.mydubbo.common.extension.ExtensionLoader;
 import pers.bo.zhao.mydubbo.common.logger.Logger;
 import pers.bo.zhao.mydubbo.common.logger.LoggerFactory;
 import pers.bo.zhao.mydubbo.common.utils.CollectionUtils;
@@ -15,6 +16,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -29,7 +31,7 @@ public abstract class AbstractConfig implements Serializable {
     private static final int MAX_LENGTH = 200;
     private static final int MAX_PATH_LENGTH = 200;
 
-    private static final Pattern NAME_PATTERN = Pattern.compile("[\\-._0-9a-zA-Z]+");
+    private static final Pattern PATTERN_NAME = Pattern.compile("[\\-._0-9a-zA-Z]+");
 
     private static final Pattern PATTERN_MULTI_NAME = Pattern.compile("[,\\-._0-9a-zA-Z]+");
 
@@ -307,6 +309,14 @@ public abstract class AbstractConfig implements Serializable {
         return value;
     }
 
+    protected static void checkExtension(Class<?> type, String property, String value) {
+        checkName(property, value);
+
+        if (StringUtils.isNotEmpty(value) && !ExtensionLoader.getExtensionLoader(type).hasExtension(value)) {
+            throw new IllegalStateException("No such extension " + value + " for " + property + "/" + type.getName());
+        }
+    }
+
     private static String getTagName(Class<? extends AbstractConfig> configClass) {
         String tag = configClass.getSimpleName();
         for (String suffix : SUFFIXES) {
@@ -317,6 +327,44 @@ public abstract class AbstractConfig implements Serializable {
         }
         tag = tag.toLowerCase();
         return tag;
+    }
+
+    protected static void checkLength(String property, String value) {
+        checkProperty(property, value, MAX_LENGTH, null);
+    }
+
+    protected static void checkName(String property, String value) {
+        checkProperty(property, value, MAX_LENGTH, PATTERN_NAME);
+    }
+
+    protected static void checkNameHasSymbol(String property, String value) {
+        checkProperty(property, value, MAX_LENGTH, PATTERN_NAME_HAS_SYMBOL);
+    }
+
+
+    protected static void checkParameters(Map<String, String> parameters) {
+        if (CollectionUtils.isEmpty(parameters)) {
+            return;
+        }
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            checkNameHasSymbol(entry.getKey(), entry.getValue());
+        }
+    }
+
+    protected static void checkProperty(String property, String value, int maxLength, Pattern pattern) {
+        if (StringUtils.isEmpty(value)) {
+            return;
+        }
+        if (value.length() > maxLength) {
+            throw new IllegalStateException("Invalid " + property + "=\"" + value + "\"" + " is longer than " + maxLength);
+        }
+        if (pattern != null) {
+            Matcher matcher = pattern.matcher(value);
+            if (!matcher.matches()) {
+                throw new IllegalStateException("Invalid " + property + "=\"" + value + "\"" +
+                        " contains illegal character, only digit, letter, '-', '_' or '.' is legal.");
+            }
+        }
     }
 
 

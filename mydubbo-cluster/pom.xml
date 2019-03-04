@@ -11,5 +11,11 @@
 
     <artifactId>mydubbo-cluster</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-common</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
 </project>

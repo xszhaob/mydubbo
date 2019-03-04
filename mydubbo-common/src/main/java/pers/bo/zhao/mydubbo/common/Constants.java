@@ -12,6 +12,8 @@ public class Constants {
 
     public static final String DEFAULT_KEY = "default";
 
+    public static final String RETURN_PREFIX = "return ";
+
     public static final Pattern COMMA_SPLIT_PATTERN = Pattern
             .compile("\\s*[,]+\\s*");
 }

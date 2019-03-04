@@ -220,6 +220,34 @@ public class ExtensionLoader<T> {
         return getExtension(cachedDefaultName);
     }
 
+    public boolean hasExtension(String name) {
+        if (StringUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Extension name == null");
+        }
+
+        try {
+            getExtensionClass(name);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Class<?> getExtensionClass(String name) {
+        if (type == null) {
+            throw new IllegalArgumentException("Extension type = null");
+        }
+        if (name == null) {
+            throw new IllegalArgumentException("Extension name = null");
+        }
+        Class<?> clazz = getExtensionClasses().get(name);
+        if (clazz == null) {
+            throw new IllegalStateException("No such extension \"" + name + "\" for " + type.getName() + "!");
+        }
+        return clazz;
+
+    }
+
     @SuppressWarnings("unchecked")
     private T createAdaptiveExtension() {
         try {

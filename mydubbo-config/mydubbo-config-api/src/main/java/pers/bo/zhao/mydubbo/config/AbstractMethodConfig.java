@@ -1,5 +1,9 @@
 package pers.bo.zhao.mydubbo.config;
 
+import pers.bo.zhao.mydubbo.common.Constants;
+import pers.bo.zhao.mydubbo.config.support.Parameter;
+import pers.bo.zhao.mydubbo.rpc.cluster.LoadBalance;
+
 import java.util.Map;
 
 /**
@@ -77,6 +81,7 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
     }
 
     public void setLoadbalance(String loadbalance) {
+        checkExtension(LoadBalance.class, "loadbalance", loadbalance);
         this.loadbalance = loadbalance;
     }
 
@@ -96,11 +101,26 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
         this.sent = sent;
     }
 
+    // TODO: 2019/3/4 含义？
+    @Parameter(escaped = true)
     public String getMock() {
         return mock;
     }
 
+    public void setMock(Boolean mock) {
+        if (mock == null) {
+            setMock((String)null);
+        } else {
+            setMock(String.valueOf(mock));
+        }
+    }
+
     public void setMock(String mock) {
+        if (mock != null && mock.startsWith(Constants.RETURN_PREFIX)) {
+            checkLength("mock", mock);
+        } else {
+            checkName("mock", mock);
+        }
         this.mock = mock;
     }
 
@@ -133,6 +153,7 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
     }
 
     public void setParameters(Map<String, String> parameters) {
+        checkParameters(parameters);
         this.parameters = parameters;
     }
 }

@@ -16,4 +16,9 @@ public class Constants {
 
     public static final Pattern COMMA_SPLIT_PATTERN = Pattern
             .compile("\\s*[,]+\\s*");
+
+    public static final String REFERENCE_FILTER_KEY = "reference.filter";
+
+    public static final String INVOKER_LISTENER_KEY = "invoker.listener";
+
 }

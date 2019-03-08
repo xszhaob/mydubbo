@@ -317,6 +317,14 @@ public abstract class AbstractConfig implements Serializable {
         }
     }
 
+    protected static void checkMultiExtension(Class<?> type, String property, String value) {
+        checkMultiName(property, value);
+        if (StringUtils.isNotEmpty(value)) {
+            String[] values = value.split("[\\s*[,]+]\\s*");
+
+        }
+    }
+
     private static String getTagName(Class<? extends AbstractConfig> configClass) {
         String tag = configClass.getSimpleName();
         for (String suffix : SUFFIXES) {
@@ -335,6 +343,10 @@ public abstract class AbstractConfig implements Serializable {
 
     protected static void checkName(String property, String value) {
         checkProperty(property, value, MAX_LENGTH, PATTERN_NAME);
+    }
+
+    protected static void checkMultiName(String property, String value) {
+        checkProperty(property, value, MAX_LENGTH, PATTERN_MULTI_NAME);
     }
 
     protected static void checkNameHasSymbol(String property, String value) {

@@ -321,7 +321,17 @@ public abstract class AbstractConfig implements Serializable {
         checkMultiName(property, value);
         if (StringUtils.isNotEmpty(value)) {
             String[] values = value.split("[\\s*[,]+]\\s*");
-
+            for (String name : values) {
+                if (name.startsWith(Constants.REMOVE_VALUE_PREFIX)) {
+                    name = name.substring(1);
+                }
+                if (Constants.DEFAULT_KEY.equals(name)) {
+                    continue;
+                }
+                if (!ExtensionLoader.getExtensionLoader(type).hasExtension(name)) {
+                    throw new IllegalStateException("No such extension " + name + " for " + property + "/" + type.getName());
+                }
+            }
         }
     }
 
@@ -341,8 +351,20 @@ public abstract class AbstractConfig implements Serializable {
         checkProperty(property, value, MAX_LENGTH, null);
     }
 
+    protected static void checkPathLength(String property, String value) {
+        checkProperty(property, value, MAX_PATH_LENGTH, null);
+    }
+
     protected static void checkName(String property, String value) {
         checkProperty(property, value, MAX_LENGTH, PATTERN_NAME);
+    }
+
+    protected static void checkPathName(String property, String value) {
+        checkProperty(property, value, MAX_PATH_LENGTH, PATTERN_PATH);
+    }
+
+    protected static void checkKey(String property, String value) {
+        checkProperty(property, value, MAX_LENGTH, PATTERN_KEY);
     }
 
     protected static void checkMultiName(String property, String value) {
@@ -351,6 +373,19 @@ public abstract class AbstractConfig implements Serializable {
 
     protected static void checkNameHasSymbol(String property, String value) {
         checkProperty(property, value, MAX_LENGTH, PATTERN_NAME_HAS_SYMBOL);
+    }
+
+    protected static void checkMethodName(String property, String value) {
+        checkProperty(property, value, MAX_LENGTH, PATTERN_METHOD_NAME);
+    }
+
+    protected static void checkParameterName(Map<String, String> parameters) {
+        if (parameters == null || parameters.size() == 0) {
+            return;
+        }
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            checkNameHasSymbol(entry.getKey(), entry.getValue());
+        }
     }
 
 

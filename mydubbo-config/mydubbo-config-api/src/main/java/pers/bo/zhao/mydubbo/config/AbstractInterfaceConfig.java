@@ -3,6 +3,7 @@ package pers.bo.zhao.mydubbo.config;
 import pers.bo.zhao.mydubbo.common.Constants;
 import pers.bo.zhao.mydubbo.config.support.Parameter;
 import pers.bo.zhao.mydubbo.rpc.Filter;
+import pers.bo.zhao.mydubbo.rpc.InvokeListener;
 import pers.bo.zhao.mydubbo.rpc.cluster.Cluster;
 
 import java.util.List;
@@ -15,7 +16,11 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     private static final long serialVersionUID = -1559314110797223229L;
 
     /**
-     * service接口的本地桩类的名称
+     * 设为true，表示使用缺省代理类名，
+     * 即：接口名 + Stub后缀，服务接口客户端本地代理类名，
+     * 用于在客户端执行本地逻辑，如本地缓存等，
+     * 该本地代理类的构造函数必须允许传入远程代理对象，
+     * 构造函数如：public XxxServiceStub(XxxService xxxService)
      */
     protected String stub;
 
@@ -121,6 +126,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     public void setListener(String listener) {
+        checkMultiExtension(InvokeListener.class, "listener", listener);
         this.listener = listener;
     }
 
@@ -129,6 +135,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     public void setOwner(String owner) {
+        checkMultiName("owner", owner);
         this.owner = owner;
     }
 
@@ -145,6 +152,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     public void setLayer(String layer) {
+        checkNameHasSymbol("layer", layer);
         this.layer = layer;
     }
 

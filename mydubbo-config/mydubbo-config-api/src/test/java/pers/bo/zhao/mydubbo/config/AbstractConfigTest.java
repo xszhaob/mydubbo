@@ -3,6 +3,8 @@ package pers.bo.zhao.mydubbo.config;
 import junit.framework.TestCase;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+import pers.bo.zhao.mydubbo.common.Constants;
+import pers.bo.zhao.mydubbo.common.utils.ConfigUtils;
 import pers.bo.zhao.mydubbo.config.api.Greeting;
 import pers.bo.zhao.mydubbo.config.support.Parameter;
 
@@ -10,8 +12,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.assertThat;
 
@@ -53,6 +57,33 @@ public class AbstractConfigTest {
         }
     }
 
+    @Test
+    public void testAppendProperties2() {
+        try {
+            System.setProperty("mydubbo.properties.two.i", "2");
+            PropertiesConfig config = new PropertiesConfig("two");
+            AbstractConfig.appendProperties(config);
+            TestCase.assertEquals(2, config.getI());
+        } finally {
+            System.clearProperty("dubbo.properties.two.i");
+        }
+    }
+
+    @Test
+    public void testAppendProperties3() throws Exception {
+        try {
+            Properties p = new Properties();
+            p.put("mydubbo.properties.str", "mydubbo");
+            ConfigUtils.setProperties(p);
+            PropertiesConfig config = new PropertiesConfig();
+            AbstractConfig.appendProperties(config);
+            TestCase.assertEquals("mydubbo", config.getStr());
+        } finally {
+            System.clearProperty(Constants.DUBBO_PROPERTIES_KEY);
+            ConfigUtils.setProperties(null);
+        }
+    }
+
 
     @Test
     public void testAppendParameters1() throws Exception {
@@ -69,6 +100,30 @@ public class AbstractConfigTest {
         TestCase.assertFalse(parameters.containsKey("prefix.secret"));
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testAppendParameters2() {
+        Map<String, String> parameters = new HashMap<>(0);
+        AbstractConfig.appendParameters(parameters, new ParameterConfig());
+    }
+
+    @Test
+    public void testAppendParameters3() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        AbstractConfig.appendParameters(parameters, null);
+        TestCase.assertTrue(parameters.isEmpty());
+    }
+
+    @Test
+    public void testAppendParameters4() throws Exception {
+        Map<String, String> parameters = new HashMap<>();
+        AbstractConfig.appendParameters(parameters, new ParameterConfig(1, "hello/world", 30, "password"));
+        TestCase.assertEquals("one", parameters.get("key.1"));
+        TestCase.assertEquals("two", parameters.get("key.2"));
+        TestCase.assertEquals("1", parameters.get("num"));
+        TestCase.assertEquals("hello%2Fworld", parameters.get("naming"));
+        TestCase.assertEquals("30", parameters.get("age"));
+    }
+
     @Test
     public void testAppendAttributes1() throws Exception {
         Map<Object, Object> parameters = new HashMap<Object, Object>();
@@ -76,6 +131,116 @@ public class AbstractConfigTest {
         TestCase.assertEquals('l', parameters.get("prefix.let"));
         TestCase.assertEquals(true, parameters.get("prefix.activate"));
         TestCase.assertFalse(parameters.containsKey("prefix.flag"));
+    }
+
+    @Test
+    public void testAppendAttributes2() throws Exception {
+        Map<Object, Object> parameters = new HashMap<Object, Object>();
+        AbstractConfig.appendAttributes(parameters, new AttributeConfig('l', true, (byte) 0x01));
+        TestCase.assertEquals('l', parameters.get("let"));
+        TestCase.assertEquals(true, parameters.get("activate"));
+        TestCase.assertFalse(parameters.containsKey("flag"));
+    }
+
+
+    @Test(expected = IllegalStateException.class)
+    public void checkExtension() throws Exception {
+        AbstractConfig.checkExtension(Greeting.class, "hello", "world");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkMultiExtension1() throws Exception {
+        AbstractConfig.checkMultiExtension(Greeting.class, "hello", "default,world");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkMultiExtension2() throws Exception {
+        AbstractConfig.checkMultiExtension(Greeting.class, "hello", "default,-world");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkLength() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i <= 200; i++) {
+            builder.append("a");
+        }
+        AbstractConfig.checkLength("hello", builder.toString());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkPathLength() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i <= 200; i++) {
+            builder.append("a");
+        }
+        AbstractConfig.checkPathLength("hello", builder.toString());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkName() throws Exception {
+        AbstractConfig.checkName("hello", "world%");
+    }
+
+    @Test
+    public void checkNameHasSymbol() throws Exception {
+        try {
+            AbstractConfig.checkNameHasSymbol("hello", ":*,/-0123abcdABCD");
+        } catch (Exception e) {
+            TestCase.fail("the value should be legal.");
+        }
+    }
+
+    @Test
+    public void checkKey() throws Exception {
+        try {
+            AbstractConfig.checkKey("hello", "*,-0123abcdABCD");
+        } catch (Exception e) {
+            TestCase.fail("the value should be legal.");
+        }
+    }
+
+    @Test
+    public void checkMultiName() throws Exception {
+        try {
+            AbstractConfig.checkMultiName("hello", ",-._0123abcdABCD");
+        } catch (Exception e) {
+            TestCase.fail("the value should be legal.");
+        }
+    }
+
+    @Test
+    public void checkPathName() throws Exception {
+        try {
+            AbstractConfig.checkPathName("hello", "/-$._0123abcdABCD");
+        } catch (Exception e) {
+            TestCase.fail("the value should be legal.");
+        }
+    }
+
+    @Test
+    public void checkMethodName() throws Exception {
+        try {
+            AbstractConfig.checkMethodName("hello", "abcdABCD0123abcd");
+        } catch (Exception e) {
+            TestCase.fail("the value should be legal.");
+        }
+
+        try {
+            AbstractConfig.checkMethodName("hello", "0a");
+            TestCase.fail("the value should be illegal.");
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    @Test
+    public void checkParameterName() throws Exception {
+        Map<String, String> parameters = Collections.singletonMap("hello", ":*,/-._0123abcdABCD");
+        try {
+            AbstractConfig.checkParameterName(parameters);
+        } catch (Exception e) {
+            TestCase.fail("the value should be legal.");
+        }
     }
 
     @Test

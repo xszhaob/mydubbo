@@ -301,7 +301,7 @@ public class ExtensionLoader<T> {
     }
 
     private ClassLoader findClassLoader() {
-        return ClassUtils.getClassLoader(ExtensionLoader.class);
+        return ExtensionLoader.class.getClassLoader();
     }
 
     public String createAdaptiveExtensionClassCode() {

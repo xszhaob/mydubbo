@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * URL：统一资源定位。
@@ -88,6 +89,7 @@ public final class URL implements Serializable {
         this.parameters = Collections.unmodifiableMap(parameters);
     }
 
+
     public static String encode(String value) {
         if (value == null || value.length() == 0) {
             return "";
@@ -110,4 +112,49 @@ public final class URL implements Serializable {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+
+
+    public String getParameter(String key) {
+        String value = parameters.get(key);
+
+        if (StringUtils.isEmpty(value)) {
+            value = parameters.get(Constants.DEFAULT_KEY_PREFIX + key);
+        }
+        return value;
+    }
+
+    public String getParameter(String key, String defaultValue) {
+        String value = getParameter(key);
+
+        if (StringUtils.isEmpty(value)) {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public int getParameter(String key, int defaultValue) {
+        Number number = getNumbers().get(key);
+        if (number != null) {
+            return number.intValue();
+        }
+
+        String value = getParameter(key);
+        if (StringUtils.isEmpty(value)) {
+            return defaultValue;
+        }
+
+        int i = Integer.parseInt(value);
+        getNumbers().put(key, i);
+        return i;
+    }
+
+    public Map<String, Number> getNumbers() {
+        // 允许出现并发
+        if (numbers == null) {
+            numbers = new ConcurrentHashMap<>();
+        }
+        return numbers;
+    }
+
+
 }

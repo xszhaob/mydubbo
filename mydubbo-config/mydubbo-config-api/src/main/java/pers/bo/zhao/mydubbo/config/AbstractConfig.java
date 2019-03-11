@@ -48,14 +48,14 @@ public abstract class AbstractConfig implements Serializable {
     private static final String[] SUFFIXES = new String[]{"Config", "Bean"};
 
     static {
-        LEGACY_PROPERTIES.put("dubbo.protocol.name", "dubbo.service.protocol");
-        LEGACY_PROPERTIES.put("dubbo.protocol.host", "dubbo.service.server.host");
-        LEGACY_PROPERTIES.put("dubbo.protocol.port", "dubbo.service.server.port");
-        LEGACY_PROPERTIES.put("dubbo.protocol.threads", "dubbo.service.max.thread.pool.size");
-        LEGACY_PROPERTIES.put("dubbo.consumer.timeout", "dubbo.service.invoke.timeout");
-        LEGACY_PROPERTIES.put("dubbo.consumer.retries", "dubbo.service.max.retry.providers");
-        LEGACY_PROPERTIES.put("dubbo.consumer.check", "dubbo.service.allow.no.provider");
-        LEGACY_PROPERTIES.put("dubbo.service.url", "dubbo.service.address");
+        LEGACY_PROPERTIES.put("mydubbo.protocol.name", "mydubbo.service.protocol");
+        LEGACY_PROPERTIES.put("mydubbo.protocol.host", "mydubbo.service.server.host");
+        LEGACY_PROPERTIES.put("mydubbo.protocol.port", "mydubbo.service.server.port");
+        LEGACY_PROPERTIES.put("mydubbo.protocol.threads", "mydubbo.service.max.thread.pool.size");
+        LEGACY_PROPERTIES.put("mydubbo.consumer.timeout", "mydubbo.service.invoke.timeout");
+        LEGACY_PROPERTIES.put("mydubbo.consumer.retries", "mydubbo.service.max.retry.providers");
+        LEGACY_PROPERTIES.put("mydubbo.consumer.check", "mydubbo.service.allow.no.provider");
+        LEGACY_PROPERTIES.put("mydubbo.service.url", "mydubbo.service.address");
     }
 
 
@@ -64,9 +64,9 @@ public abstract class AbstractConfig implements Serializable {
 
     private static String convertLegacyValue(String key, String value) {
         if (value != null && value.length() > 0) {
-            if ("dubbo.service.max.retry.providers".equals(key)) {
+            if ("mydubbo.service.max.retry.providers".equals(key)) {
                 return String.valueOf(Integer.parseInt(value) - 1);
-            } else if ("dubbo.service.allow.no.provider".equals(key)) {
+            } else if ("mydubbo.service.allow.no.provider".equals(key)) {
                 return String.valueOf(!Boolean.parseBoolean(value));
             }
         }
@@ -100,7 +100,7 @@ public abstract class AbstractConfig implements Serializable {
                         String pn = prefix + config.getId() + "." + property;
                         value = System.getProperty(pn);
                         if (StringUtils.isNotEmpty(value)) {
-                            LOGGER.info("Use System Property " + pn + " to config dubbo");
+                            LOGGER.info("Use System Property " + pn + " to config mydubbo");
                         }
                     }
 
@@ -108,7 +108,7 @@ public abstract class AbstractConfig implements Serializable {
                         String pn = prefix + property;
                         value = System.getProperty(pn);
                         if (StringUtils.isNotEmpty(value)) {
-                            LOGGER.info("Use System Property " + pn + " to config dubbo");
+                            LOGGER.info("Use System Property " + pn + " to config mydubbo");
                         }
                     }
 

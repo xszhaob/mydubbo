@@ -1,7 +1,9 @@
 package pers.bo.zhao.mydubbo.common.logger;
 
+import pers.bo.zhao.mydubbo.common.extension.ExtensionLoader;
 import pers.bo.zhao.mydubbo.common.logger.log4j.Log4jLoggerAdapter;
 import pers.bo.zhao.mydubbo.common.logger.support.FailSafeLogger;
+import pers.bo.zhao.mydubbo.common.utils.StringUtils;
 
 import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +24,12 @@ public class LoggerFactory {
 //        if ("log4j".equals(property)) {
             setLoggerAdapter(new Log4jLoggerAdapter());
 //        }
+    }
+
+    public static void setLoggerAdapter(String loggerAdapter) {
+        if (StringUtils.isNotEmpty(loggerAdapter)) {
+            setLoggerAdapter(ExtensionLoader.getExtensionLoader(LoggerAdapter.class).getExtension(loggerAdapter));
+        }
     }
 
 

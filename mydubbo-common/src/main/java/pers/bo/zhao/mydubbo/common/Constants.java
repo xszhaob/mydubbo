@@ -43,5 +43,14 @@ public class Constants {
 
     public static final int DEFAULT_QUEUES = 0;
 
+    public static final String APPLICATION_KEY = "application";
+
+    public static final String DUMP_DIRECTORY = "dump.directory";
+
+    public static final String QOS_ENABLE = "qos.enable";
+
+    public static final String QOS_PORT = "qos.port";
+
+    public static final String ACCEPT_FOREIGN_IP = "qos.accept.foreign.ip";
 
 }

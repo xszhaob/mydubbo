@@ -60,7 +60,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     protected ApplicationConfig application;
 
-    protected ModuleConfig module;
+//    protected ModuleConfig module;
 
     protected List<RegistryConfig> registries;
 
@@ -164,13 +164,13 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         this.application = application;
     }
 
-    public ModuleConfig getModule() {
-        return module;
-    }
-
-    public void setModule(ModuleConfig module) {
-        this.module = module;
-    }
+//    public ModuleConfig getModule() {
+//        return module;
+//    }
+//
+//    public void setModule(ModuleConfig module) {
+//        this.module = module;
+//    }
 
     public List<RegistryConfig> getRegistries() {
         return registries;

@@ -210,7 +210,7 @@ public class ExtensionLoader<T> {
         return new IllegalStateException(buf.toString());
     }
 
-    private T getDefaultExtension() {
+    public T getDefaultExtension() {
         getExtensionClasses();
 
         if (StringUtils.isEmpty(cachedDefaultName) || "true".equals(cachedDefaultName)) {

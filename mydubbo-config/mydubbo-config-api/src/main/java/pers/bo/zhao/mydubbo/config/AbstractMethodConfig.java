@@ -85,7 +85,7 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
         this.loadbalance = loadbalance;
     }
 
-    public Boolean getAsync() {
+    public Boolean isAsync() {
         return async;
     }
 

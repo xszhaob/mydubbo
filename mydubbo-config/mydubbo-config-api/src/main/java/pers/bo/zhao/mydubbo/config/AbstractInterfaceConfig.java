@@ -1,11 +1,16 @@
 package pers.bo.zhao.mydubbo.config;
 
 import pers.bo.zhao.mydubbo.common.Constants;
+import pers.bo.zhao.mydubbo.common.utils.CollectionUtils;
+import pers.bo.zhao.mydubbo.common.utils.ConfigUtils;
+import pers.bo.zhao.mydubbo.common.utils.StringUtils;
 import pers.bo.zhao.mydubbo.config.support.Parameter;
 import pers.bo.zhao.mydubbo.rpc.Filter;
 import pers.bo.zhao.mydubbo.rpc.InvokeListener;
 import pers.bo.zhao.mydubbo.rpc.cluster.Cluster;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -75,6 +80,82 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      */
     private String scope;
 
+
+
+    protected void checkInterfaceAndMethods(Class<?> interfaceClass, List<MethodConfig> methods) {
+        if (interfaceClass == null) {
+            throw new IllegalStateException("interface not allow null!");
+        }
+        if (!interfaceClass.isInterface()) {
+            throw new IllegalStateException("The interface class " + interfaceClass + " is not a interface!");
+        }
+        if (methods != null && methods.size() > 0) {
+            for (MethodConfig methodConfig : methods) {
+                String methodName = methodConfig.getName();
+                if (StringUtils.isEmpty(methodName)) {
+                    throw new IllegalStateException("<dubbo:method> name attribute is required! Please check: <dubbo:service interface=\"" + interfaceClass.getName() + "\" ... ><dubbo:method name=\"\" ... /></<dubbo:reference>");
+                }
+                boolean hasMethod = false;
+                for (Method method : interfaceClass.getMethods()) {
+                    if (method.getName().equals(methodName)) {
+                        hasMethod = true;
+                        break;
+                    }
+                }
+                if (!hasMethod) {
+                    throw new IllegalStateException("The interface " + interfaceClass.getName()
+                            + " not found method " + methodName);
+                }
+            }
+        }
+    }
+
+    protected void checkApplication() {
+        if (application == null) {
+            String applicationName = ConfigUtils.getProperty("mydubbo.application.name");
+            if (StringUtils.isNotEmpty(applicationName)) {
+                application = new ApplicationConfig();
+            }
+        }
+        if (application == null) {
+            throw new IllegalStateException("No such application config! " +
+                    "Please add <mydubbo:application name=\"...\" /> to your spring config!");
+        }
+        appendProperties(application);
+
+        String wait = ConfigUtils.getProperty(Constants.SHUTDOWN_WAIT_KEY);
+        if (StringUtils.isNotEmpty(wait)) {
+            System.setProperty(Constants.SHUTDOWN_WAIT_KEY, wait.trim());
+        }
+    }
+
+    protected void checkRegistry() {
+        if (CollectionUtils.isEmpty(registries)) {
+            String address = ConfigUtils.getProperty("mydubbo.registry.address");
+            if (StringUtils.isNotEmpty(address)) {
+                String[] addresses = address.split("\\s*[|]+\\s*");
+                registries = new ArrayList<>(addresses.length);
+                for (String a : addresses) {
+                    RegistryConfig registryConfig = new RegistryConfig();
+                    registryConfig.setAddress(a);
+                    registries.add(registryConfig);
+                }
+            }
+        }
+        if (CollectionUtils.isEmpty(registries)) {
+            throw new IllegalStateException((getClass().getSimpleName().startsWith("Reference")
+                    ? "No such any registry to refer service in consumer "
+                    : "No such any registry to export service in provider ")
+                    + NetUtils.getLocalHost()
+                    + " use dubbo version "
+                    + Version.getVersion()
+                    + ", Please add <mydubbo:registry address=\"...\" /> to your spring config. " +
+                    "If you want unregister, please set <mydubbo:service registry=\"N/A\" />");
+        }
+        for (RegistryConfig registry : registries) {
+            appendProperties(registry);
+        }
+    }
 
     public String getStub() {
         return stub;

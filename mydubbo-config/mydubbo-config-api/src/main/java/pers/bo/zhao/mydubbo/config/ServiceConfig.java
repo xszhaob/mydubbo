@@ -4,6 +4,7 @@ import pers.bo.zhao.mydubbo.common.utils.NamedThreadFactory;
 import pers.bo.zhao.mydubbo.common.utils.StringUtils;
 import pers.bo.zhao.mydubbo.rpc.service.GenericService;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,6 +23,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private String interfaceName;
     private Class<?> interfaceClass;
     private T ref;
+    /**
+     * 服务路径，缺省为接口名
+     */
     private String path;
     private List<MethodConfig> methods;
 
@@ -103,8 +107,28 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 throw new IllegalStateException(e.getMessage(), e);
             }
             checkInterfaceAndMethods(interfaceClass, methods);
+            checkRef();
+            generic = Boolean.FALSE.toString();
         }
 
+        checkApplication();
+        checkRegistry();
+        checkProtocol();
+        appendProperties(this);
+        if (StringUtils.isEmpty(path)) {
+            path = interfaceName;
+        }
+
+    }
+
+    private void checkRef() {
+        if (ref == null) {
+            throw new IllegalStateException("ref not allow null!");
+        }
+        if (!interfaceClass.isInstance(ref)) {
+            throw new IllegalStateException("The class " + ref.getClass().getName() +
+                    " unimplemented interface " + interfaceClass + "!");
+        }
     }
 
     private void checkDefault() {

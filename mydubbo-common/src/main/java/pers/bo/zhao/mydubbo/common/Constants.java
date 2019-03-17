@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  */
 public class Constants {
 
-    public static final String DUBBO_PROPERTIES_KEY = "dubbo.properties.file";
+    public static final String DUBBO_PROPERTIES_KEY = "mydubbo.properties.file";
 
     public static final String DEFAULT_KEY = "default";
     public static final String DEFAULT_KEY_PREFIX = "default.";
@@ -64,5 +64,7 @@ public class Constants {
     public static final String ON_RETURN_INSTANCE_KEY = "onreturn.instance";
 
     public static final String ON_THROW_INSTANCE_KEY = "onthrow.instance";
+
+    public static final String SHUTDOWN_WAIT_KEY = "mydubbo.service.shutdown.wait";
 
 }

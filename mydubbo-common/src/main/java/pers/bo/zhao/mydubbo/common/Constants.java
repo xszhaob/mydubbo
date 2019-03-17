@@ -53,4 +53,16 @@ public class Constants {
 
     public static final String ACCEPT_FOREIGN_IP = "qos.accept.foreign.ip";
 
+    public static final String ON_INVOKE_METHOD_KEY = "oninvoke.method";
+
+    public static final String ON_RETURN_METHOD_KEY = "onreturn.method";
+
+    public static final String ON_THROW_METHOD_KEY = "onthrow.method";
+
+    public static final String ON_INVOKE_INSTANCE_KEY = "oninvoke.instance";
+
+    public static final String ON_RETURN_INSTANCE_KEY = "onreturn.instance";
+
+    public static final String ON_THROW_INSTANCE_KEY = "onthrow.instance";
+
 }

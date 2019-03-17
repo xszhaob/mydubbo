@@ -2,7 +2,9 @@ package pers.bo.zhao.mydubbo.config;
 
 import pers.bo.zhao.mydubbo.common.utils.NamedThreadFactory;
 import pers.bo.zhao.mydubbo.common.utils.StringUtils;
+import pers.bo.zhao.mydubbo.rpc.service.GenericService;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * @author Bo.Zhao
  * @since 19/2/12
  */
-public class ServiceConfig extends AbstractServiceConfig {
+public class ServiceConfig<T> extends AbstractServiceConfig {
 
     private static final long serialVersionUID = 3033787999037024738L;
 
@@ -19,12 +21,17 @@ public class ServiceConfig extends AbstractServiceConfig {
 
     private String interfaceName;
     private Class<?> interfaceClass;
+    private T ref;
+    private String path;
+    private List<MethodConfig> methods;
 
     private ProviderConfig provider;
 
     private transient volatile boolean exported;
 
     private transient volatile boolean unexported;
+
+    private volatile String generic;
 
     public synchronized void export() {
         if (provider != null) {
@@ -83,7 +90,20 @@ public class ServiceConfig extends AbstractServiceConfig {
                 registries = application.getRegistries();
             }
         }
-
+        // 泛型调用
+        if (ref instanceof GenericService) {
+            interfaceClass = GenericService.class;
+            if (StringUtils.isEmpty(generic)) {
+                generic = Boolean.TRUE.toString();
+            }
+        } else {
+            try {
+                interfaceClass = Class.forName(interfaceName, true, Thread.currentThread().getContextClassLoader());
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
+            checkInterfaceAndMethods(interfaceClass, methods);
+        }
 
     }
 

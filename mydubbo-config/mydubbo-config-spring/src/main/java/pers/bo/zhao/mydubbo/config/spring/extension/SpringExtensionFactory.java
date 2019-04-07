@@ -60,7 +60,7 @@ public class SpringExtensionFactory implements ExtensionFactory {
             try {
                 return context.getBean(type);
             } catch (NoSuchBeanDefinitionException e) {
-                if (logger.isDebugEnable()) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("Error when get spring extension(bean) for type: " + type, e);
                 }
             }

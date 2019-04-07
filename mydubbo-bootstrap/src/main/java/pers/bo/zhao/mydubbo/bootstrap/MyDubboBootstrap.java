@@ -51,7 +51,7 @@ public class MyDubboBootstrap {
 //            serviceConfig.unexport();
         }
         // TODO: 19/3/3 在shutdownHook的run方法就调用了destroyAll，为何在此处再次调用？
-        shutdownHook.destroyedAll();
+        shutdownHook.destroyAll();
         if (registerShutdownHookOnStart) {
             removeShutdownHook();
         }

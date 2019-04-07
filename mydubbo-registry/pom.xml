@@ -10,6 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mydubbo-registry</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>mydubbo-registry-api</module>
+        <module>mydubbo-registry-default</module>
+        <module>mydubbo-registry-zookeeper</module>
+    </modules>
 
 
 </project>

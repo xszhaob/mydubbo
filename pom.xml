@@ -19,6 +19,7 @@
         <module>mydubbo-demo</module>
         <module>mydubbo-dependencies-bom</module>
         <module>mydubbo-bootstrap</module>
+        <module>mydubbo-serialization</module>
     </modules>
 
 

@@ -8,7 +8,10 @@ import java.util.regex.Pattern;
  */
 public class Constants {
 
-    public static final String DUBBO_PROPERTIES_KEY = "mydubbo.properties.file";
+    public static final String ANY_VALUE = "*";
+    public static final String ANY_HOST_VALUE = "0.0.0.0";
+    public static final String MYDUBBO_VERSION_KEY = "mydubbo";
+    public static final String MYDUBBO_PROPERTIES_KEY = "mydubbo.properties.file";
 
     public static final String DEFAULT_KEY = "default";
     public static final String DEFAULT_KEY_PREFIX = "default.";
@@ -66,5 +69,34 @@ public class Constants {
     public static final String ON_THROW_INSTANCE_KEY = "onthrow.instance";
 
     public static final String SHUTDOWN_WAIT_KEY = "mydubbo.service.shutdown.wait";
+
+    public static final String CODEC_KEY = "codec";
+
+    public static final String TIMESTAMP_KEY = "timestamp";
+
+    public static final String PID_KEY = "pid";
+
+    public static final String REGISTRY_KEY = "registry";
+    public static final String REGISTRY_PROTOCOL = "registry";
+    public static final String REGISTER_KEY = "register";
+    public static final String SUBSCRIBE_KEY = "subscribe";
+    public static final String REGISTRY_FILE_SAVE_SYNC_KEY = "save.file";
+    public static final String FILE_KEY = "file";
+    public static final String BACKUP_KEY = "backup";
+    public static final String INTERFACE_KEY = "interface";
+    public static final String EMPTY_PROTOCOL = "empty";
+    public static final String CATEGORY_KEY = "category";
+    private static final String PROVIDERS_CATEGORY = "providers";
+    public static final String DEFAULT_CATEGORY = PROVIDERS_CATEGORY;
+    public static final String GROUP_KEY = "group";
+    public static final String VERSION_KEY = "version";
+
+    public static final String REGISTRY_RETRY_PERIOD_KEY = "retry.period";
+    public static final int DEFAULT_REGISTRY_RETRY_PERIOD = 5 * 1000;
+
+    public static final String CHECK_KEY = "check";
+
+    public static final String CONSUMER_PROTOCOL = "consumer";
+
 
 }

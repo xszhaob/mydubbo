@@ -41,13 +41,13 @@ public interface Logger {
     void error(String message, Throwable throwable);
 
 
-    boolean isTraceEnable();
+    boolean isTraceEnabled();
 
-    boolean isDebugEnable();
+    boolean isDebugEnabled();
 
-    boolean isInfoEnable();
+    boolean isInfoEnabled();
 
-    boolean isWarnEnable();
+    boolean isWarnEnabled();
 
-    boolean isErrorEnable();
+    boolean isErrorEnabled();
 }

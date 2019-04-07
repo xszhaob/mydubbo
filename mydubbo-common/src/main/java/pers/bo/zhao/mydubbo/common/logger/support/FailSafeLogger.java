@@ -136,45 +136,45 @@ public class FailSafeLogger implements Logger {
     }
 
     @Override
-    public boolean isTraceEnable() {
+    public boolean isTraceEnabled() {
         try {
-            return logger.isTraceEnable();
+            return logger.isTraceEnabled();
         } catch (Throwable e) {
             return false;
         }
     }
 
     @Override
-    public boolean isDebugEnable() {
+    public boolean isDebugEnabled() {
         try {
-            return logger.isDebugEnable();
+            return logger.isDebugEnabled();
         } catch (Throwable e) {
             return false;
         }
     }
 
     @Override
-    public boolean isInfoEnable() {
+    public boolean isInfoEnabled() {
         try {
-            return logger.isInfoEnable();
+            return logger.isInfoEnabled();
         } catch (Throwable e) {
             return false;
         }
     }
 
     @Override
-    public boolean isWarnEnable() {
+    public boolean isWarnEnabled() {
         try {
-            return logger.isWarnEnable();
+            return logger.isWarnEnabled();
         } catch (Throwable e) {
             return false;
         }
     }
 
     @Override
-    public boolean isErrorEnable() {
+    public boolean isErrorEnabled() {
         try {
-            return logger.isErrorEnable();
+            return logger.isErrorEnabled();
         } catch (Throwable e) {
             return false;
         }

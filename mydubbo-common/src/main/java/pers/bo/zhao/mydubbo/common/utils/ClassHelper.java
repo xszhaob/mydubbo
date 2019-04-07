@@ -19,4 +19,8 @@ public class ClassHelper {
         }
         return cl;
     }
+
+    public static ClassLoader getCallerClassLoader(Class<?> caller) {
+        return caller.getClassLoader();
+    }
 }

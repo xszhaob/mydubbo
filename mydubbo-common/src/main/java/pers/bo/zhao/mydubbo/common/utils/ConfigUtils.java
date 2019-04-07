@@ -7,6 +7,8 @@ import pers.bo.zhao.mydubbo.common.logger.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -31,6 +33,24 @@ public class ConfigUtils {
 
     private static volatile Properties PROPERTIES;
 
+    private static int PID = -1;
+
+    private ConfigUtils() {
+    }
+
+
+    public static boolean isNotEmpty(String value) {
+        return !isEmpty(value);
+    }
+
+    public static boolean isEmpty(String value) {
+        return value == null || value.length() == 0
+                || "false".equalsIgnoreCase(value)
+                || "0".equalsIgnoreCase(value)
+                || "null".equalsIgnoreCase(value)
+                || "N/A".equalsIgnoreCase(value);
+    }
+
     public static String getProperty(String key) {
         return getProperty(key, null);
     }
@@ -50,12 +70,12 @@ public class ConfigUtils {
         if (PROPERTIES == null) {
             synchronized (ConfigUtils.class) {
                 if (PROPERTIES == null) {
-                    String path = System.getProperty(Constants.DUBBO_PROPERTIES_KEY);
+                    String path = System.getProperty(Constants.MYDUBBO_PROPERTIES_KEY);
                     if (StringUtils.isEmpty(path)) {
-                        path = System.getenv(Constants.DUBBO_PROPERTIES_KEY);
+                        path = System.getenv(Constants.MYDUBBO_PROPERTIES_KEY);
                     }
                     if (StringUtils.isEmpty(path)) {
-                        path = Constants.DUBBO_PROPERTIES_KEY;
+                        path = Constants.MYDUBBO_PROPERTIES_KEY;
                     }
                     PROPERTIES = loadProperties(path, false, true);
                 }
@@ -148,5 +168,18 @@ public class ConfigUtils {
             }
         }
         return properties;
+    }
+
+    public static int getPid() {
+        if (PID < 0) {
+            try {
+                RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+                String name = runtime.getName();
+                PID = Integer.parseInt(name.substring(0, name.indexOf('@')));
+            } catch (Throwable t) {
+                PID = 0;
+            }
+        }
+        return PID;
     }
 }

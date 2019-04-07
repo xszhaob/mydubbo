@@ -94,27 +94,27 @@ public class Log4jLogger implements Logger {
     }
 
     @Override
-    public boolean isTraceEnable() {
+    public boolean isTraceEnabled() {
         return logger.isTraceEnabled();
     }
 
     @Override
-    public boolean isDebugEnable() {
+    public boolean isDebugEnabled() {
         return logger.isDebugEnabled();
     }
 
     @Override
-    public boolean isInfoEnable() {
+    public boolean isInfoEnabled() {
         return logger.isInfoEnabled();
     }
 
     @Override
-    public boolean isWarnEnable() {
+    public boolean isWarnEnabled() {
         return logger.isEnabledFor(Level.WARN);
     }
 
     @Override
-    public boolean isErrorEnable() {
+    public boolean isErrorEnabled() {
         return logger.isEnabledFor(Level.ERROR);
     }
 

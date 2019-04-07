@@ -1,10 +1,12 @@
 package pers.bo.zhao.mydubbo.config;
 
+import pers.bo.zhao.mydubbo.common.Constants;
+import pers.bo.zhao.mydubbo.common.URL;
+import pers.bo.zhao.mydubbo.common.utils.CollectionUtils;
 import pers.bo.zhao.mydubbo.common.utils.NamedThreadFactory;
 import pers.bo.zhao.mydubbo.common.utils.StringUtils;
 import pers.bo.zhao.mydubbo.rpc.service.GenericService;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,6 +40,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private volatile String generic;
 
     public synchronized void export() {
+        // provider不为null
         if (provider != null) {
             if (export == null) {
                 export = provider.getExport();
@@ -47,13 +50,16 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             }
         }
 
+        // 服务不导出
         if (export != null && !export) {
             return;
         }
 
+        // 延时导出服务
         if (delayed > 0) {
             DELAY_EXPORT_EXECUTOR.schedule(this::doExport, delayed, TimeUnit.MILLISECONDS);
         } else {
+            // 立即导出服务
             doExport();
         }
     }
@@ -66,10 +72,14 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             return;
         }
         exported = true;
+        // 检测interfaceName的合法性
         if (StringUtils.isEmpty(interfaceName)) {
             throw new IllegalStateException("<mydubbo:service interface=\"\" /> interface not allow null");
         }
-        checkDefault();
+        checkProviderDefault();
+
+        // 下面几个 if 语句用于检测application、registries、protocols等核心配置类对象是否为空，
+        // 若为空，则尝试从其他配置类对象中获取相应的实例。
         if (provider != null) {
             if (application == null) {
                 application = provider.getApplication();
@@ -94,7 +104,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 registries = application.getRegistries();
             }
         }
-        // 泛型调用
+        // 泛化调用
         if (ref instanceof GenericService) {
             interfaceClass = GenericService.class;
             if (StringUtils.isEmpty(generic)) {
@@ -118,7 +128,35 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if (StringUtils.isEmpty(path)) {
             path = interfaceName;
         }
+        doExportUrls();
 
+
+    }
+
+    private void doExportUrls() {
+        List<URL> registriesURLs = loadRegistries(true);
+        for (ProtocolConfig protocolConfig : protocols) {
+            doExportUrlForOneProtocol(protocolConfig, registriesURLs);
+        }
+    }
+
+    private void doExportUrlForOneProtocol(ProtocolConfig protocolConfig, List<URL> registriesURLs) {
+
+    }
+
+    private void checkProtocol() {
+        if ((CollectionUtils.isEmpty(protocols)) && provider != null) {
+            setProtocols(provider.getProtocols());
+        }
+        if (CollectionUtils.isEmpty(protocols)) {
+            setProtocol(new ProtocolConfig());
+        }
+        for (ProtocolConfig protocolConfig : protocols) {
+            if (StringUtils.isEmpty(protocolConfig.getName())) {
+                protocolConfig.setName(Constants.MYDUBBO_VERSION_KEY);
+            }
+            appendProperties(protocolConfig);
+        }
     }
 
     private void checkRef() {
@@ -131,7 +169,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         }
     }
 
-    private void checkDefault() {
+    /**
+     * 检查provider的合法性，如果不合法则新建一个provider，
+     * 并通过系统变量为其初始化
+     */
+    private void checkProviderDefault() {
         if (provider == null) {
             provider = new ProviderConfig();
         }

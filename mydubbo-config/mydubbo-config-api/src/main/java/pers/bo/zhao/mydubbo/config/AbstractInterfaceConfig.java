@@ -1,17 +1,22 @@
 package pers.bo.zhao.mydubbo.config;
 
 import pers.bo.zhao.mydubbo.common.Constants;
-import pers.bo.zhao.mydubbo.common.utils.CollectionUtils;
-import pers.bo.zhao.mydubbo.common.utils.ConfigUtils;
-import pers.bo.zhao.mydubbo.common.utils.StringUtils;
+import pers.bo.zhao.mydubbo.common.URL;
+import pers.bo.zhao.mydubbo.common.Version;
+import pers.bo.zhao.mydubbo.common.extension.ExtensionLoader;
+import pers.bo.zhao.mydubbo.common.utils.*;
 import pers.bo.zhao.mydubbo.config.support.Parameter;
+import pers.bo.zhao.mydubbo.registry.RegistryFactory;
+import pers.bo.zhao.mydubbo.registry.RegistryService;
 import pers.bo.zhao.mydubbo.rpc.Filter;
 import pers.bo.zhao.mydubbo.rpc.InvokeListener;
 import pers.bo.zhao.mydubbo.rpc.cluster.Cluster;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Bo.Zhao
@@ -81,7 +86,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     private String scope;
 
 
-
     protected void checkInterfaceAndMethods(Class<?> interfaceClass, List<MethodConfig> methods) {
         if (interfaceClass == null) {
             throw new IllegalStateException("interface not allow null!");
@@ -127,6 +131,53 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         if (StringUtils.isNotEmpty(wait)) {
             System.setProperty(Constants.SHUTDOWN_WAIT_KEY, wait.trim());
         }
+    }
+
+    protected List<URL> loadRegistries(boolean provider) {
+        // registry的合法性校验
+        checkRegistry();
+        List<URL> registryList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(registries)) {
+            return registryList;
+        }
+        for (RegistryConfig registryConfig : registries) {
+            String address = registryConfig.getAddress();
+            if (StringUtils.isEmpty(address)) {
+                address = Constants.ANY_HOST_VALUE;
+            }
+            String sysAddress = System.getProperty("mydubbo.registry.address");
+            if (StringUtils.isNotEmpty(sysAddress)) {
+                address = sysAddress;
+            }
+            if (StringUtils.isNotEmpty(address) && !RegistryConfig.NO_AVAILABLE.equalsIgnoreCase(address)) {
+                Map<String, String> map = new HashMap<>();
+                appendParameters(map, application);
+                appendParameters(map, registryConfig);
+                map.put("path", RegistryService.class.getName());
+                map.put("mydubbo", Version.getProtocolVersion());
+                map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
+                if (ConfigUtils.getPid() > 0) {
+                    map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));
+                }
+                if (!map.containsKey("protocol")) {
+                    if (ExtensionLoader.getExtensionLoader(RegistryFactory.class).hasExtension("remote")) {
+                        map.put("protocol", "remote");
+                    } else {
+                        map.put("protocol", "mydubbo");
+                    }
+                }
+                List<URL> urls = UrlUtils.parseUrls(address, map);
+                for (URL url : urls) {
+                    url = url.addParameter(Constants.REGISTRY_KEY, url.getProtocol());
+                    url = url.setProtocol(Constants.REGISTRY_PROTOCOL);
+                    if ((provider && url.getParameter(Constants.REGISTER_KEY, true))
+                            || (!provider && url.getParameter(Constants.SUBSCRIBE_KEY, true))) {
+                        registryList.add(url);
+                    }
+                }
+            }
+        }
+        return registryList;
     }
 
     protected void checkRegistry() {

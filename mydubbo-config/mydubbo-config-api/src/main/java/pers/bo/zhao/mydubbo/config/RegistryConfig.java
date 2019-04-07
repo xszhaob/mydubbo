@@ -8,9 +8,10 @@ import java.util.Map;
  * @author Bo.Zhao
  * @since 19/3/8
  */
-// TODO: 19/3/8 待完善
 public class RegistryConfig extends AbstractConfig {
     private static final long serialVersionUID = 5508512956753757169L;
+
+    public static final String NO_AVAILABLE = "N/A";
 
     private String address;
 

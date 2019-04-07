@@ -11,6 +11,10 @@
 
     <artifactId>mydubbo-config-api</artifactId>
 
+    <properties>
+        <skip_maven_deploy>false</skip_maven_deploy>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>pers.bo.zhao</groupId>
@@ -26,6 +30,17 @@
             <groupId>pers.bo.zhao</groupId>
             <artifactId>mydubbo-remoting-api</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-registry-default</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-serialization-hessian2</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

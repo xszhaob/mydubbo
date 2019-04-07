@@ -28,14 +28,14 @@ public class MyDubboShutdownHook extends Thread {
 
     @Override
     public void run() {
-        if (LOGGER.isInfoEnable()) {
+        if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Run myDubbo shutdown hook now.");
         }
 
     }
 
 
-    public void destroyedAll() {
+    public void destroyAll() {
         if (!destroyed.compareAndSet(false, true)) {
             return;
         }

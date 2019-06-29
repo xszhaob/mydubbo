@@ -162,12 +162,51 @@ public final class URL implements Serializable {
         return i;
     }
 
+    public long getParameter(String key, long defaultValue) {
+        Number number = getNumbers().get(key);
+        if (number != null) {
+            return number.longValue();
+        }
+
+        String value = getParameter(key);
+        if (StringUtils.isEmpty(value)) {
+            return defaultValue;
+        }
+
+        long i = Long.parseLong(value);
+        getNumbers().put(key, i);
+        return i;
+    }
+
     public boolean getParameter(String key, boolean defaultValue) {
         String value = getParameter(key);
         if (StringUtils.isNotEmpty(value)) {
             return Boolean.parseBoolean(value);
         }
         return defaultValue;
+    }
+
+    public String getMethodParameter(String method, String key) {
+        String value = parameters.get(method + "." + key);
+        if (StringUtils.isEmpty(value)) {
+            return getParameter(key);
+        }
+        return value;
+    }
+
+    public int getMethodParameter(String method, String key, int defaultValue) {
+        String methodKey = method + "." + key;
+        Number n = getNumbers().get(methodKey);
+        if (n != null) {
+            return n.intValue();
+        }
+        String value = getMethodParameter(method, key);
+        if (StringUtils.isEmpty(value)) {
+            return defaultValue;
+        }
+        int i = Integer.parseInt(value);
+        getNumbers().put(methodKey, i);
+        return i;
     }
 
     public Map<String, Number> getNumbers() {
@@ -427,6 +466,15 @@ public final class URL implements Serializable {
         }
         if (url.length() > 0) host = url;
         return new URL(protocol, username, password, host, port, path, parameters);
+    }
+
+
+    public String toIdentityString() {
+        if (identity != null) {
+            return identity;
+        }
+        identity = buildString(true, false);
+        return identity;
     }
 
 }

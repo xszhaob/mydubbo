@@ -2,6 +2,7 @@ package pers.bo.zhao.mydubbo.registry.support;
 
 import pers.bo.zhao.mydubbo.common.Constants;
 import pers.bo.zhao.mydubbo.common.URL;
+import pers.bo.zhao.mydubbo.common.timer.HashedWheelTimer;
 import pers.bo.zhao.mydubbo.common.utils.ConcurrentHashSet;
 import pers.bo.zhao.mydubbo.common.utils.NamedThreadFactory;
 import pers.bo.zhao.mydubbo.registry.NotifyListener;
@@ -14,8 +15,6 @@ import java.util.concurrent.*;
 public abstract class FailbackRegistry extends AbstractRegistry {
     private final ScheduledExecutorService retryExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("DubboRegistryFailedRetryTimer", true));
 
-    private final ScheduledFuture<?> retryFuture;
-
     private final Set<URL> failedRegistered = new ConcurrentHashSet<>();
 
     private final Set<URL> failedUnregistered = new ConcurrentHashSet<>();
@@ -27,21 +26,15 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     private final ConcurrentMap<URL, Map<NotifyListener, List<URL>>> failedNotified = new ConcurrentHashMap<>();
     private final int retryPeriod;
 
+    private final HashedWheelTimer retryTimer;
+
     public FailbackRegistry(URL url) {
         super(url);
         this.retryPeriod = url.getParameter(Constants.REGISTRY_RETRY_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RETRY_PERIOD);
-        this.retryFuture = retryExecutor.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                retry();
-            }
-        }, retryPeriod, retryPeriod, TimeUnit.MILLISECONDS);
+        this.retryTimer = new HashedWheelTimer(new NamedThreadFactory("MyDubboRegistryRetryTimer"), retryPeriod, TimeUnit.MILLISECONDS, 128);
+
     }
 
-
-    public ScheduledFuture<?> getRetryFuture() {
-        return retryFuture;
-    }
 
     public Set<URL> getFailedRegistered() {
         return failedRegistered;
@@ -159,6 +152,35 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         super.unsubscribe(url, listener);
     }
 
+
+    @Override
+    protected void notify(URL url, NotifyListener listener, List<URL> urls) {
+        if (url == null) {
+            throw new IllegalArgumentException("notify url == null");
+        }
+        if (listener == null) {
+            throw new IllegalArgumentException("notify listener == null");
+        }
+
+        try {
+            doNotify(url, listener, urls);
+        } catch (Exception e) {
+            addFailedNotified(url, listener, urls);
+            LOGGER.error("Failed to notify for subscribe " + url + ", waiting for retry, cause: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 利用timer框架实现重试
+     */
+    private void addFailedNotified(URL url, NotifyListener listener, List<URL> urls) {
+
+    }
+
+    private void doNotify(URL url, NotifyListener listener, List<URL> urls) {
+        super.notify(url, listener, urls);
+    }
+
     protected void retry() {
 
     }
@@ -173,4 +195,6 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     protected abstract void doSubscribe(URL url, NotifyListener listener);
 
     protected abstract void doUnsubscribe(URL url, NotifyListener listener);
+
+
 }

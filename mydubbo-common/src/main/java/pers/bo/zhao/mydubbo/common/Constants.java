@@ -93,10 +93,22 @@ public class Constants {
 
     public static final String REGISTRY_RETRY_PERIOD_KEY = "retry.period";
     public static final int DEFAULT_REGISTRY_RETRY_PERIOD = 5 * 1000;
+    public static final String REGISTRY_RETRY_TIMES_KEY = "retry.period";
+    public static final int DEFAULT_REGISTRY_RETRY_TIMES = 3;
+
 
     public static final String CHECK_KEY = "check";
 
     public static final String CONSUMER_PROTOCOL = "consumer";
 
+    public static final String REMOTE_TIMESTAMP_KEY = "remote.timestamp";
+
+    public static final String WEIGHT_KEY = "weight";
+
+    public static final int DEFAULT_WEIGHT = 100;
+
+    public static final String WARMUP_KEY = "warmup";
+
+    public static final int DEFAULT_WARMUP = 10 * 60 * 1000;
 
 }

@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <properties>
+        <zookeeper_version>3.4.13</zookeeper_version>
         <spring_version>4.3.16.RELEASE</spring_version>
         <log4j_version>1.2.16</log4j_version>
     </properties>
@@ -27,6 +28,17 @@
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j_version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper_version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

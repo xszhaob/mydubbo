@@ -3,7 +3,11 @@ package pers.bo.zhao.mydubbo.remoting;
 import java.net.InetSocketAddress;
 
 public interface Channel extends Endpoint {
-
+    /**
+     * 获取远程地址
+     *
+     * @return
+     */
     InetSocketAddress getRemoteAddress();
 
 

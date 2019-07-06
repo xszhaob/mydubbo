@@ -5,6 +5,7 @@ import pers.bo.zhao.mydubbo.common.utils.StringUtils;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
@@ -186,6 +187,11 @@ public final class URL implements Serializable {
         return defaultValue;
     }
 
+    public boolean hasParameter(String key) {
+        String value = getParameter(key);
+        return value != null && value.length() > 0;
+    }
+
     public String getMethodParameter(String method, String key) {
         String value = parameters.get(method + "." + key);
         if (StringUtils.isEmpty(value)) {
@@ -234,6 +240,19 @@ public final class URL implements Serializable {
         return new URL(protocol, username, password, host, port, path, map);
     }
 
+    public URL addParameterIfAbsent(String key, String value) {
+        if (StringUtils.isEmpty(key)
+                || StringUtils.isEmpty(value)) {
+            return this;
+        }
+        if (hasParameter(key)) {
+            return this;
+        }
+        Map<String, String> map = new HashMap<>(getParameters());
+        map.put(key, value);
+        return new URL(protocol, username, password, host, port, path, map);
+    }
+
 
     public URL setAddress(String address) {
         int i = address.indexOf(':');
@@ -253,6 +272,10 @@ public final class URL implements Serializable {
         return port <= 0 ? host : host + ":" + port;
     }
 
+
+    public InetSocketAddress toInetSocketAddress() {
+        return new InetSocketAddress(host, port);
+    }
 
     public List<URL> getBackupUrls() {
         List<URL> urls = new ArrayList<>();
@@ -334,6 +357,10 @@ public final class URL implements Serializable {
         }
 
         return ip;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     private void buildParameter(StringBuilder sb, boolean concat, String[] parameters) {

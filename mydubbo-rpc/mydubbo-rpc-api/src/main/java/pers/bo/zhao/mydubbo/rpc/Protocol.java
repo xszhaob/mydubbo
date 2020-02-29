@@ -10,7 +10,7 @@ public interface Protocol {
     int getDefaultPort();
 
     @Adaptive
-    <T> Exporter<T> export() throws RpcException;
+    <T> Exporter<T> export(Invoker<T> invoker) throws RpcException;
 
     @Adaptive
     <T> Invoker<T> refer(Class<?> type, URL url) throws RpcException;

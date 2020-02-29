@@ -11,11 +11,19 @@
 
     <artifactId>mydubbo-serialization-hessian2</artifactId>
 
+    <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>pers.bo.zhao</groupId>
             <artifactId>mydubbo-serialization-api</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>hessian-lite</artifactId>
+            <version>3.2.3</version>
         </dependency>
     </dependencies>
 </project>

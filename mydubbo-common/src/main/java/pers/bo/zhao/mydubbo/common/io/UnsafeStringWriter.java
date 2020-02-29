@@ -1,91 +1,103 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pers.bo.zhao.mydubbo.common.io;
 
 import java.io.IOException;
 import java.io.Writer;
 
 /**
- * 非线程安全的StringWriter
- *
- * @author Bo.Zhao
- * @since 19/2/11
+ * Thread-unsafe StringWriter.
  */
 public class UnsafeStringWriter extends Writer {
-    private StringBuilder buffer;
-
+    private StringBuilder mBuffer;
 
     public UnsafeStringWriter() {
-        this.lock = this.buffer = new StringBuilder();
+        lock = mBuffer = new StringBuilder();
     }
 
+    public UnsafeStringWriter(int size) {
+        if (size < 0)
+            throw new IllegalArgumentException("Negative buffer size");
+
+        lock = mBuffer = new StringBuilder();
+    }
 
     @Override
-    public void write(char[] cbuf, int off, int len) throws IOException {
-        if (off < 0 || off > cbuf.length || len < 0 || (off + len) > cbuf.length || (off + len) < 0) {
+    public void write(int c) {
+        mBuffer.append((char) c);
+    }
+
+    @Override
+    public void write(char[] cs) throws IOException {
+        mBuffer.append(cs, 0, cs.length);
+    }
+
+    @Override
+    public void write(char[] cs, int off, int len) throws IOException {
+        if ((off < 0) || (off > cs.length) || (len < 0) ||
+                ((off + len) > cs.length) || ((off + len) < 0))
             throw new IndexOutOfBoundsException();
-        }
-        buffer.append(cbuf, off, len);
+
+        if (len > 0)
+            mBuffer.append(cs, off, len);
     }
 
     @Override
-    public void write(int c) throws IOException {
-        buffer.append((char) c);
+    public void write(String str) {
+        mBuffer.append(str);
     }
 
     @Override
-    public void write(char[] cbuf) throws IOException {
-        write(cbuf, 0, cbuf.length);
+    public void write(String str, int off, int len) {
+        mBuffer.append(str.substring(off, off + len));
     }
 
     @Override
-    public void write(String str) throws IOException {
-        buffer.append(str);
-    }
-
-    @Override
-    public void write(String str, int off, int len) throws IOException {
-        buffer.append(str, off, off + len);
-    }
-
-    @Override
-    public Writer append(CharSequence csq) throws IOException {
-        if (csq == null) {
+    public Writer append(CharSequence csq) {
+        if (csq == null)
             write("null");
-        } else {
+        else
             write(csq.toString());
-        }
         return this;
     }
 
     @Override
-    public Writer append(CharSequence csq, int start, int end) throws IOException {
-        if (csq == null) {
-            csq = "null";
-        }
-        CharSequence charSequence = csq.subSequence(start, end);
-        write(charSequence.toString());
+    public Writer append(CharSequence csq, int start, int end) {
+        CharSequence cs = (csq == null ? "null" : csq);
+        write(cs.subSequence(start, end).toString());
         return this;
     }
 
     @Override
-    public Writer append(char c) throws IOException {
-        buffer.append(c);
+    public Writer append(char c) {
+        mBuffer.append(c);
         return this;
     }
 
     @Override
-    public void flush() throws IOException {
-
+    public void close() {
     }
 
     @Override
-    public void close() throws IOException {
-
+    public void flush() {
     }
 
     @Override
     public String toString() {
-        return buffer.toString();
+        return mBuffer.toString();
     }
-
-
 }

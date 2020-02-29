@@ -44,7 +44,7 @@ public abstract class AbstractRetryTask implements TimerTask {
         this.taskName = taskName;
         cancel = false;
         this.retryPeriod = url.getParameter(Constants.REGISTRY_RETRY_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RETRY_PERIOD);
-        this.retryTimes = url.getParameter(Constants.REGISTRY_RETRY_TIMES_KEY, Constants.DEFAULT_REGISTRY_RETRY_TIMES);
+        this.retryTimes = 3;
     }
 
     public void cancel() {

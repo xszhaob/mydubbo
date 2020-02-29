@@ -4,6 +4,7 @@ import pers.bo.zhao.mydubbo.common.URL;
 import pers.bo.zhao.mydubbo.common.extension.ExtensionLoader;
 import pers.bo.zhao.mydubbo.remoting.ChannelHandler;
 import pers.bo.zhao.mydubbo.remoting.Dispatcher;
+import pers.bo.zhao.mydubbo.remoting.exchange.support.HeartbeatHandler;
 import pers.bo.zhao.mydubbo.remoting.transport.MultiMessageHandler;
 
 /**

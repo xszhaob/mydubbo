@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Codec. (SPI, Singleton, ThreadSafe)
+ */
+@Deprecated
 @SPI
 public interface Codec {
 
@@ -38,4 +42,5 @@ public interface Codec {
      */
     @Adaptive({Constants.CODEC_KEY})
     Object decode(Channel channel, InputStream input) throws IOException;
+
 }

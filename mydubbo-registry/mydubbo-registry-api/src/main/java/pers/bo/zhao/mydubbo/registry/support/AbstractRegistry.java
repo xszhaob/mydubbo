@@ -43,7 +43,7 @@ public abstract class AbstractRegistry implements Registry {
         // 设置注册的url
         setUrl(url);
 
-        syncSaveFile = url.getParameter(Constants.REGISTRY_FILE_SAVE_SYNC_KEY, false);
+        syncSaveFile = false;
         String fileName = url.getParameter(Constants.FILE_KEY,
                 System.getProperty("user.home") +
                         "/.mydubbo/mydubbo-registry-" +

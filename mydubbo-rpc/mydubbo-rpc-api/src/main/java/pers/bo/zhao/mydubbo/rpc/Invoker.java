@@ -10,5 +10,5 @@ public interface Invoker<T> extends Node {
 
     Class<?> getInterface();
 
-
+    Result invoke(Invocation invocation) throws RpcException;
 }

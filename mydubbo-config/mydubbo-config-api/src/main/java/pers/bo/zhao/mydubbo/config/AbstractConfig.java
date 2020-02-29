@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 public abstract class AbstractConfig implements Serializable {
     private static final long serialVersionUID = 4267533505537413570L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConfig.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractConfig.class);
 
     private static final int MAX_LENGTH = 200;
     private static final int MAX_PATH_LENGTH = 200;

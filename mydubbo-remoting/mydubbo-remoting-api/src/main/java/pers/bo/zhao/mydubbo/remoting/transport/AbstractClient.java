@@ -35,7 +35,6 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
     protected volatile ExecutorService executor;
 
 
-
     public AbstractClient(URL url, ChannelHandler handler) throws RemotingException {
         super(url, handler);
         this.needReconnect = url.getParameter(Constants.SEND_RECONNECT_KEY, false);
@@ -74,6 +73,8 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         ExtensionLoader.getExtensionLoader(DataStore.class)
                 .getDefaultExtension().remove(CommonConstants.CONSUMER_SIDE, Integer.toString(url.getPort()));
     }
+
+    protected abstract void connect() throws RemotingException;
 
     protected static ChannelHandler wrapChannelHandler(URL url, ChannelHandler handler) {
         url = ExecutorUtil.setThreadName(url, CLIENT_THREAD_POOL_NAME);

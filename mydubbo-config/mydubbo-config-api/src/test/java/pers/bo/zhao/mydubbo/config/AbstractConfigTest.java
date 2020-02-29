@@ -79,7 +79,7 @@ public class AbstractConfigTest {
             AbstractConfig.appendProperties(config);
             TestCase.assertEquals("mydubbo", config.getStr());
         } finally {
-            System.clearProperty(Constants.MYDUBBO_PROPERTIES_KEY);
+            System.clearProperty(Constants.DUBBO_PROPERTIES_KEY);
             ConfigUtils.setProperties(null);
         }
     }

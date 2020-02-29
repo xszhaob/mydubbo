@@ -70,12 +70,12 @@ public class ConfigUtils {
         if (PROPERTIES == null) {
             synchronized (ConfigUtils.class) {
                 if (PROPERTIES == null) {
-                    String path = System.getProperty(Constants.MYDUBBO_PROPERTIES_KEY);
+                    String path = System.getProperty(Constants.DUBBO_PROPERTIES_KEY);
                     if (StringUtils.isEmpty(path)) {
-                        path = System.getenv(Constants.MYDUBBO_PROPERTIES_KEY);
+                        path = System.getenv(Constants.DUBBO_PROPERTIES_KEY);
                     }
                     if (StringUtils.isEmpty(path)) {
-                        path = Constants.MYDUBBO_PROPERTIES_KEY;
+                        path = Constants.DUBBO_PROPERTIES_KEY;
                     }
                     PROPERTIES = loadProperties(path, false, true);
                 }

@@ -2,12 +2,23 @@ package pers.bo.zhao.mydubbo.config;
 
 import pers.bo.zhao.mydubbo.common.Constants;
 import pers.bo.zhao.mydubbo.common.URL;
+import pers.bo.zhao.mydubbo.common.Version;
+import pers.bo.zhao.mydubbo.common.extension.ExtensionLoader;
 import pers.bo.zhao.mydubbo.common.utils.CollectionUtils;
+import pers.bo.zhao.mydubbo.common.utils.ConfigUtils;
 import pers.bo.zhao.mydubbo.common.utils.NamedThreadFactory;
 import pers.bo.zhao.mydubbo.common.utils.StringUtils;
+import pers.bo.zhao.mydubbo.config.invoker.DelegateProviderMetaDataInvoker;
+import pers.bo.zhao.mydubbo.rpc.Exporter;
+import pers.bo.zhao.mydubbo.rpc.Invoker;
+import pers.bo.zhao.mydubbo.rpc.Protocol;
+import pers.bo.zhao.mydubbo.rpc.ProxyFactory;
 import pers.bo.zhao.mydubbo.rpc.service.GenericService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,16 +31,18 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
     private static final long serialVersionUID = 3033787999037024738L;
 
+    private static final Protocol protocol = ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension();
+
+    private static final ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
+
     private static final ScheduledExecutorService DELAY_EXPORT_EXECUTOR = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("MyDubboServiceDelayExporter", true));
 
     private String interfaceName;
     private Class<?> interfaceClass;
     private T ref;
-    /**
-     * 服务路径，缺省为接口名
-     */
-    private String path;
-    private List<MethodConfig> methods;
+
+
+    private final List<Exporter<?>> exporters = new ArrayList<>();
 
     private ProviderConfig provider;
 
@@ -84,9 +97,6 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             if (application == null) {
                 application = provider.getApplication();
             }
-//            if (module == null) {
-//                module = provider.getModule();
-//            }
             if (registries == null) {
                 registries = provider.getRegistries();
             }
@@ -94,11 +104,6 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 protocols = provider.getProtocols();
             }
         }
-//        if (module != null) {
-//            if (registries == null) {
-//                registries = module
-//            }
-//        }
         if (application != null) {
             if (registries == null) {
                 registries = application.getRegistries();
@@ -116,7 +121,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
-            checkInterfaceAndMethods(interfaceClass, methods);
+            checkInterfaceAndMethods(interfaceClass);
             checkRef();
             generic = Boolean.FALSE.toString();
         }
@@ -125,12 +130,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         checkRegistry();
         checkProtocol();
         appendProperties(this);
-        if (StringUtils.isEmpty(path)) {
-            path = interfaceName;
-        }
         doExportUrls();
-
-
     }
 
     private void doExportUrls() {
@@ -141,7 +141,33 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     }
 
     private void doExportUrlForOneProtocol(ProtocolConfig protocolConfig, List<URL> registriesURLs) {
+        Map<String, String> map = new HashMap<>();
+        map.put(Constants.SIDE_KEY, Constants.PROVIDER_SIDE);
+        map.put(Constants.DUBBO_VERSION_KEY, Version.getProtocolVersion());
+        map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
+        if (ConfigUtils.getPid() > 0) {
+            map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));
+        }
+        appendParameters(map, application);
+        appendParameters(map, protocolConfig);
+        appendParameters(map, this);
 
+        // 暴露服务
+        if (CollectionUtils.isNotEmpty(registriesURLs)) {
+            for (URL registryURL : registriesURLs) {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Register dubbo service " + interfaceClass.getName() + " url " + registryURL + " to registry " + registryURL);
+                }
+
+                Invoker invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass,
+                        registryURL.addParameterAndEncoded(Constants.EXPORT_KEY, registryURL.toFullString()));
+
+                DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
+
+                Exporter export = protocol.export(wrapperInvoker);
+                exporters.add(export);
+            }
+        }
     }
 
     private void checkProtocol() {
@@ -153,7 +179,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         }
         for (ProtocolConfig protocolConfig : protocols) {
             if (StringUtils.isEmpty(protocolConfig.getName())) {
-                protocolConfig.setName(Constants.MYDUBBO_VERSION_KEY);
+                protocolConfig.setName(Constants.DUBBO_VERSION_KEY);
             }
             appendProperties(protocolConfig);
         }

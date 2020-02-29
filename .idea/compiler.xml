@@ -8,31 +8,32 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="dubbo-demo-provider" options="-proc:none" />
-      <module name="mydubbo" options="-proc:none" />
+      <module name="mydubbo" options="" />
       <module name="mydubbo-bootstrap" options="-proc:none" />
       <module name="mydubbo-cluster" options="-proc:none" />
       <module name="mydubbo-common" options="-proc:none" />
-      <module name="mydubbo-config" options="-proc:none" />
+      <module name="mydubbo-config" options="" />
       <module name="mydubbo-config-api" options="-proc:none" />
       <module name="mydubbo-config-spring" options="-proc:none" />
-      <module name="mydubbo-container" options="-proc:none" />
+      <module name="mydubbo-container" options="" />
       <module name="mydubbo-container-api" options="-proc:none" />
       <module name="mydubbo-container-spring" options="-proc:none" />
-      <module name="mydubbo-demo" options="-proc:none" />
+      <module name="mydubbo-demo" options="" />
       <module name="mydubbo-demo-api" options="-proc:none" />
       <module name="mydubbo-demo-consumer" options="-proc:none" />
       <module name="mydubbo-demo-provider" options="-proc:none" />
       <module name="mydubbo-dependencies-bom" options="" />
-      <module name="mydubbo-registry" options="-proc:none" />
+      <module name="mydubbo-registry" options="" />
       <module name="mydubbo-registry-api" options="-proc:none" />
       <module name="mydubbo-registry-default" options="-proc:none" />
       <module name="mydubbo-registry-zookeeper" options="-proc:none" />
-      <module name="mydubbo-remoting" options="-proc:none" />
+      <module name="mydubbo-remoting" options="" />
       <module name="mydubbo-remoting-api" options="-proc:none" />
       <module name="mydubbo-remoting-zookeeper" options="-proc:none" />
-      <module name="mydubbo-rpc" options="-proc:none" />
+      <module name="mydubbo-rpc" options="" />
       <module name="mydubbo-rpc-api" options="-proc:none" />
-      <module name="mydubbo-serialization" options="-proc:none" />
+      <module name="mydubbo-rpc-dubbo" options="-proc:none" />
+      <module name="mydubbo-serialization" options="" />
       <module name="mydubbo-serialization-api" options="-proc:none" />
       <module name="mydubbo-serialization-hessian2" options="-proc:none" />
     </option>

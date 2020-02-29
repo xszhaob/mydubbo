@@ -12,7 +12,6 @@ import pers.bo.zhao.mydubbo.rpc.Filter;
 import pers.bo.zhao.mydubbo.rpc.InvokeListener;
 import pers.bo.zhao.mydubbo.rpc.cluster.Cluster;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,8 +69,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     protected ApplicationConfig application;
 
-//    protected ModuleConfig module;
-
     protected List<RegistryConfig> registries;
 
     protected String onconnect;
@@ -86,31 +83,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     private String scope;
 
 
-    protected void checkInterfaceAndMethods(Class<?> interfaceClass, List<MethodConfig> methods) {
+    protected void checkInterfaceAndMethods(Class<?> interfaceClass) {
         if (interfaceClass == null) {
             throw new IllegalStateException("interface not allow null!");
         }
         if (!interfaceClass.isInterface()) {
             throw new IllegalStateException("The interface class " + interfaceClass + " is not a interface!");
-        }
-        if (methods != null && methods.size() > 0) {
-            for (MethodConfig methodConfig : methods) {
-                String methodName = methodConfig.getName();
-                if (StringUtils.isEmpty(methodName)) {
-                    throw new IllegalStateException("<dubbo:method> name attribute is required! Please check: <dubbo:service interface=\"" + interfaceClass.getName() + "\" ... ><dubbo:method name=\"\" ... /></<dubbo:reference>");
-                }
-                boolean hasMethod = false;
-                for (Method method : interfaceClass.getMethods()) {
-                    if (method.getName().equals(methodName)) {
-                        hasMethod = true;
-                        break;
-                    }
-                }
-                if (!hasMethod) {
-                    throw new IllegalStateException("The interface " + interfaceClass.getName()
-                            + " not found method " + methodName);
-                }
-            }
         }
     }
 
@@ -143,7 +121,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         for (RegistryConfig registryConfig : registries) {
             String address = registryConfig.getAddress();
             if (StringUtils.isEmpty(address)) {
-                address = Constants.ANY_HOST_VALUE;
+                address = Constants.ANYHOST_VALUE;
             }
             String sysAddress = System.getProperty("mydubbo.registry.address");
             if (StringUtils.isNotEmpty(sysAddress)) {

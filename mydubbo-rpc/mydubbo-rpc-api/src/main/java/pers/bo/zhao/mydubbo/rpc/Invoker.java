@@ -8,7 +8,7 @@ import pers.bo.zhao.mydubbo.common.Node;
  */
 public interface Invoker<T> extends Node {
 
-    Class<?> getInterface();
+    Class<T> getInterface();
 
     Result invoke(Invocation invocation) throws RpcException;
 }

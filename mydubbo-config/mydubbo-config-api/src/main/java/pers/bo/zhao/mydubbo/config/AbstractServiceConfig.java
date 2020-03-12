@@ -33,11 +33,6 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
     protected Boolean deprecated;
 
     /**
-     * 延迟注册服务时间(毫秒) ，设为-1时，表示延迟到Spring容器初始化完成时暴露服务
-     */
-    protected Integer delayed;
-
-    /**
      * 是否暴露服务
      */
     protected Boolean export;
@@ -118,14 +113,6 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
 
     public void setDeprecated(Boolean deprecated) {
         this.deprecated = deprecated;
-    }
-
-    public Integer getDelayed() {
-        return delayed;
-    }
-
-    public void setDelayed(Integer delayed) {
-        this.delayed = delayed;
     }
 
     public Boolean getExport() {

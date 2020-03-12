@@ -144,7 +144,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                         map.put("protocol", "mydubbo");
                     }
                 }
-                List<URL> urls = UrlUtils.parseUrls(address, map);
+                List<URL> urls = UrlUtils.parseURLs(address, map);
                 for (URL url : urls) {
                     url = url.addParameter(Constants.REGISTRY_KEY, url.getProtocol());
                     url = url.setProtocol(Constants.REGISTRY_PROTOCOL);

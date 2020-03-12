@@ -11,5 +11,19 @@
 
     <artifactId>mydubbo-registry-zookeeper</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-registry-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-remoting-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
 
 </project>

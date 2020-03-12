@@ -1,0 +1,1 @@
+zookeeper=pers.bo.zhao.mydubbo.registry.zookeeper.ZookeeperRegistryFactory

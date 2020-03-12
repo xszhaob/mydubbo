@@ -1,0 +1,2 @@
+adaptive=pers.bo.zhao.mydubbo.common.compiler.support.AdaptiveCompiler
+javassist=pers.bo.zhao.mydubbo.common.compiler.support.JavassistCompiler

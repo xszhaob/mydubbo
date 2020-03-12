@@ -85,6 +85,8 @@ public interface ChannelBuffer extends Comparable<ChannelBuffer> {
     @Override
     boolean equals(Object o);
 
+    ChannelBufferFactory factory();
+
 
     /**
      * Gets a byte at the specified absolute {@code index} in this buffer. This

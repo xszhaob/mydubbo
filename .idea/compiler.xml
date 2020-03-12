@@ -29,6 +29,7 @@
       <module name="mydubbo-registry-zookeeper" options="-proc:none" />
       <module name="mydubbo-remoting" options="" />
       <module name="mydubbo-remoting-api" options="-proc:none" />
+      <module name="mydubbo-remoting-netty" options="-proc:none" />
       <module name="mydubbo-remoting-zookeeper" options="-proc:none" />
       <module name="mydubbo-rpc" options="" />
       <module name="mydubbo-rpc-api" options="-proc:none" />

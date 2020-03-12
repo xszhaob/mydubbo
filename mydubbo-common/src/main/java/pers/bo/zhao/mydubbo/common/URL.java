@@ -146,6 +146,8 @@ public final class URL implements Serializable {
         }
     }
 
+
+
     public String getProtocol() {
         return protocol;
     }
@@ -153,6 +155,11 @@ public final class URL implements Serializable {
     public URL setProtocol(String protocol) {
         return new URL(protocol, username, password, host, port, path, getParameters());
     }
+
+    public URL setPath(String path) {
+        return new URL(protocol, username, password, host, port, path, getParameters());
+    }
+
 
     public String getParameter(String key) {
         String value = parameters.get(key);
@@ -236,6 +243,13 @@ public final class URL implements Serializable {
         return value != null && value.length() > 0;
     }
 
+    public String getParameterAndDecoded(String key) {
+        return getParameterAndDecoded(key, null);
+    }
+
+    public String getParameterAndDecoded(String key, String defaultValue) {
+        return decode(getParameter(key, defaultValue));
+    }
 
     public String getMethodParameterAndDecoded(String method, String key) {
         return URL.decode(getMethodParameter(method, key));
@@ -489,6 +503,55 @@ public final class URL implements Serializable {
         return addParameter(key, encode(value));
     }
 
+    /**
+     * Add parameters to a new url.
+     *
+     * @param parameters parameters in key-value pairs
+     * @return A new URL
+     */
+    public URL addParameters(Map<String, String> parameters) {
+        if (parameters == null || parameters.size() == 0) {
+            return this;
+        }
+
+        boolean hasAndEqual = true;
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            String value = getParameters().get(entry.getKey());
+            if (value == null) {
+                if (entry.getValue() != null) {
+                    hasAndEqual = false;
+                    break;
+                }
+            } else {
+                if (!value.equals(entry.getValue())) {
+                    hasAndEqual = false;
+                    break;
+                }
+            }
+        }
+        // return immediately if there's no change
+        if (hasAndEqual) return this;
+
+        Map<String, String> map = new HashMap<String, String>(getParameters());
+        map.putAll(parameters);
+        return new URL(protocol, username, password, host, port, path, map);
+    }
+
+    public URL addParameters(String... pairs) {
+        if (pairs == null || pairs.length == 0) {
+            return this;
+        }
+        if (pairs.length % 2 != 0) {
+            throw new IllegalArgumentException("Map pairs can not be odd number.");
+        }
+        Map<String, String> map = new HashMap<String, String>();
+        int len = pairs.length / 2;
+        for (int i = 0; i < len; i++) {
+            map.put(pairs[2 * i], pairs[2 * i + 1]);
+        }
+        return addParameters(map);
+    }
+
     public URL addParameterIfAbsent(String key, String value) {
         if (StringUtils.isEmpty(key)
                 || StringUtils.isEmpty(value)) {
@@ -521,6 +584,34 @@ public final class URL implements Serializable {
         return port <= 0 ? host : host + ":" + port;
     }
 
+    public String getBackupAddress() {
+        return getBackupAddress(0);
+    }
+
+    public String getBackupAddress(int defaultPort) {
+        StringBuilder address = new StringBuilder(appendDefaultPort(getAddress(), defaultPort));
+        String[] backups = getParameter(Constants.BACKUP_KEY, new String[0]);
+        if (backups != null && backups.length > 0) {
+            for (String backup : backups) {
+                address.append(",");
+                address.append(appendDefaultPort(backup, defaultPort));
+            }
+        }
+        return address.toString();
+    }
+
+    private String appendDefaultPort(String address, int defaultPort) {
+        if (address != null && address.length() > 0
+                && defaultPort > 0) {
+            int i = address.indexOf(':');
+            if (i < 0) {
+                return address + ":" + defaultPort;
+            } else if (Integer.parseInt(address.substring(i + 1)) == 0) {
+                return address.substring(0, i + 1) + defaultPort;
+            }
+        }
+        return address;
+    }
 
     public InetSocketAddress toInetSocketAddress() {
         return new InetSocketAddress(host, port);
@@ -537,6 +628,34 @@ public final class URL implements Serializable {
             }
         }
         return urls;
+    }
+
+    public URL removeParameter(String key) {
+        if (key == null || key.length() == 0) {
+            return this;
+        }
+        return removeParameters(key);
+    }
+
+    public URL removeParameters(Collection<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return this;
+        }
+        return removeParameters(keys.toArray(new String[0]));
+    }
+
+    public URL removeParameters(String... keys) {
+        if (keys == null || keys.length == 0) {
+            return this;
+        }
+        Map<String, String> map = new HashMap<String, String>(getParameters());
+        for (String key : keys) {
+            map.remove(key);
+        }
+        if (map.size() == getParameters().size()) {
+            return this;
+        }
+        return new URL(protocol, username, password, host, port, path, map);
     }
 
     public String getServiceInterface() {
@@ -656,10 +775,43 @@ public final class URL implements Serializable {
         return host;
     }
 
+    public boolean isAnyHost() {
+        return Constants.ANYHOST_VALUE.equals(host) || getParameter(Constants.ANYHOST_KEY, false);
+    }
+
+    public String getAuthority() {
+        if ((username == null || username.length() == 0)
+                && (password == null || password.length() == 0)) {
+            return null;
+        }
+        return (username == null ? "" : username)
+                + ":" + (password == null ? "" : password);
+    }
+
+    public String toServiceString() {
+        return buildString(true, false, true, true);
+    }
+
+
     public URL setHost(String host) {
         return new URL(protocol, username, password, host, port, path, getParameters());
     }
 
+    public String getRawParameter(String key) {
+        if ("protocol".equals(key))
+            return protocol;
+        if ("username".equals(key))
+            return username;
+        if ("password".equals(key))
+            return password;
+        if ("host".equals(key))
+            return host;
+        if ("port".equals(key))
+            return String.valueOf(port);
+        if ("path".equals(key))
+            return path;
+        return getParameter(key);
+    }
 
     @Override
     public String toString() {

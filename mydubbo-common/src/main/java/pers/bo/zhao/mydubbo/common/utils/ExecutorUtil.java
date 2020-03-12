@@ -1,18 +1,13 @@
 package pers.bo.zhao.mydubbo.common.utils;
 
+import pers.bo.zhao.mydubbo.common.Constants;
 import pers.bo.zhao.mydubbo.common.URL;
-import pers.bo.zhao.mydubbo.common.constants.CommonConstants;
 import pers.bo.zhao.mydubbo.common.logger.Logger;
 import pers.bo.zhao.mydubbo.common.logger.LoggerFactory;
 
 import java.util.concurrent.*;
 
-/**
- * @author Bo.Zhao
- * @since 19/7/6
- */
 public class ExecutorUtil {
-
     private static final Logger logger = LoggerFactory.getLogger(ExecutorUtil.class);
     private static final ThreadPoolExecutor SHUTDOWN_EXECUTOR = new ThreadPoolExecutor(0, 1,
             0L, TimeUnit.MILLISECONDS,
@@ -30,10 +25,9 @@ public class ExecutorUtil {
 
     /**
      * Use the shutdown pattern from:
-     * https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutorService.html
-     *
+     *  https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutorService.html
      * @param executor the Executor to shutdown
-     * @param timeout  the timeout in milliseconds before termination
+     * @param timeout the timeout in milliseconds before termination
      */
     public static void gracefulShutdown(Executor executor, int timeout) {
         if (!(executor instanceof ExecutorService) || isTerminated(executor)) {
@@ -112,16 +106,9 @@ public class ExecutorUtil {
      * @return new url with updated thread name
      */
     public static URL setThreadName(URL url, String defaultName) {
-        String name = url.getParameter(CommonConstants.THREAD_NAME_KEY, defaultName);
+        String name = url.getParameter(Constants.THREAD_NAME_KEY, defaultName);
         name = name + "-" + url.getAddress();
-        url = url.addParameter(CommonConstants.THREAD_NAME_KEY, name);
+        url = url.addParameter(Constants.THREAD_NAME_KEY, name);
         return url;
-    }
-
-    public static void cancelScheduledFuture(ScheduledFuture<?> scheduledFuture) {
-        ScheduledFuture<?> future = scheduledFuture;
-        if (future != null && !future.isCancelled()) {
-            future.cancel(true);
-        }
     }
 }

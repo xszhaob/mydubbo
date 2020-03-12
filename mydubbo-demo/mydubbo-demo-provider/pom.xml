@@ -18,5 +18,30 @@
             <artifactId>mydubbo-demo-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-config-spring</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-registry-zookeeper</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-rpc-dubbo</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-remoting-netty</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pers.bo.zhao</groupId>
+            <artifactId>mydubbo-serialization-hessian2</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -25,7 +25,6 @@ public interface ChannelHandler {
     void sent(Channel channel, Object message) throws RemotingException;
 
     /**
-     * todo 为何都是过去式？
      * @param channel
      * @param message
      * @throws RemotingException

@@ -1,1 +1,2 @@
 adaptive=pers.bo.zhao.mydubbo.common.extension.factory.AdaptiveExtensionFactory
+spi=pers.bo.zhao.mydubbo.common.extension.factory.SPIExtensionFactory

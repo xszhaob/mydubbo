@@ -9,7 +9,7 @@ import java.util.Collection;
  * @author Bo.Zhao
  * @since 19/7/6
  */
-public interface Server extends Endpoint, Channel, Resetable, IdleSensible {
+public interface Server extends Endpoint, Resetable {
 
     boolean isBound();
 

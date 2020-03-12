@@ -2,6 +2,7 @@ package pers.bo.zhao.mydubbo.remoting;
 
 import pers.bo.zhao.mydubbo.common.Constants;
 import pers.bo.zhao.mydubbo.common.extension.Adaptive;
+import pers.bo.zhao.mydubbo.common.extension.SPI;
 import pers.bo.zhao.mydubbo.remoting.buffer.ChannelBuffer;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.IOException;
  * @author Bo.Zhao
  * @since 19/7/6
  */
+@SPI
 public interface Codec2 {
 
     /**

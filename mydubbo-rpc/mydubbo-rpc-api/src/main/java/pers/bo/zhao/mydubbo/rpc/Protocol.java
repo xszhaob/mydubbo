@@ -4,7 +4,7 @@ import pers.bo.zhao.mydubbo.common.URL;
 import pers.bo.zhao.mydubbo.common.extension.Adaptive;
 import pers.bo.zhao.mydubbo.common.extension.SPI;
 
-@SPI
+@SPI("dubbo")
 public interface Protocol {
 
     int getDefaultPort();
@@ -13,7 +13,7 @@ public interface Protocol {
     <T> Exporter<T> export(Invoker<T> invoker) throws RpcException;
 
     @Adaptive
-    <T> Invoker<T> refer(Class<?> type, URL url) throws RpcException;
+    <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException;
 
     void destroy();
 

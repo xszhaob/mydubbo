@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>mydubbo-remoting-api</module>
+        <module>mydubbo-remoting-netty</module>
         <module>mydubbo-remoting-zookeeper</module>
     </modules>
 

@@ -11,7 +11,7 @@
 
     <properties>
         <zookeeper_version>3.4.13</zookeeper_version>
-        <spring_version>4.3.16.RELEASE</spring_version>
+        <spring_version>4.3.29.RELEASE</spring_version>
         <log4j_version>1.2.16</log4j_version>
     </properties>
 
